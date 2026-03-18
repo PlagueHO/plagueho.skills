@@ -6,6 +6,10 @@ Agent Skills standard, see [agentskills.io](https://agentskills.io).
 
 ## What's Included
 
+<p align="center">
+  <img src="docs/images/overview.svg" alt="Plugin catalog overview" width="840"/>
+</p>
+
 | Plugin | Description |
 |--------|-------------|
 | [azure-architecture-review](plugins/azure-architecture-review/) | Review Azure Architecture Center multitenant guidance for currency. |
