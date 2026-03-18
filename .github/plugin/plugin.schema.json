@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Plugin Definition",
+  "description": "Schema for an individual plugin.json file within a plugin directory.",
+  "type": "object",
+  "required": ["name", "description", "version"],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-z0-9][a-z0-9-]*$",
+      "description": "Plugin identifier (lowercase, hyphens allowed)."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Short description of what the plugin does."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version of the plugin."
+    },
+    "author": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "url": {
+          "type": "string"
+        }
+      },
+      "required": ["name"],
+      "additionalProperties": false
+    },
+    "repository": {
+      "type": "string",
+      "description": "URL of the source repository."
+    },
+    "homepage": {
+      "type": "string",
+      "description": "URL to the plugin homepage or documentation."
+    },
+    "license": {
+      "type": "string",
+      "description": "License identifier (e.g. MIT)."
+    },
+    "keywords": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Search keywords for discovery."
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Relative paths to skill directories within this plugin."
+    },
+    "agents": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Relative paths to agent definitions within this plugin."
+    },
+    "hooks": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Relative paths to hook definitions within this plugin."
+    }
+  }
+}

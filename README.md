@@ -1,2 +1,102 @@
-# skills
-Agent plugin marketplace for Daniel Scott-Raynsford. GitHub Copilot skills, agents, and plugin bundles for use across repositories.
+# PlagueHO Agent Skills
+
+This repository contains Daniel Scott-Raynsford's curated set of agent
+skills and plugin bundles for coding agents. For information about the
+Agent Skills standard, see [agentskills.io](https://agentskills.io).
+
+## What's Included
+
+| Plugin | Description |
+|--------|-------------|
+| [azure-architecture-review](plugins/azure-architecture-review/) | Review Azure Architecture Center multitenant guidance for currency. |
+| [azure-infrastructure](plugins/azure-infrastructure/) | Provision Azure identities and manage Azure Verified Module versions. |
+| [content-and-learning](plugins/content-and-learning/) | Review content for AI readiness and generate Microsoft technology learning pathways. |
+| [developer-environment](plugins/developer-environment/) | Scaffold dotfiles repos and sync VS Code profiles across editions. |
+| [dotnet-modernization](plugins/dotnet-modernization/) | Convert legacy .NET project files to modern SDK-style format. |
+| [skill-lifecycle](plugins/skill-lifecycle/) | Create, convert, and generate agent skills from prompts and pull requests. |
+| [suggest-awesome-github-copilot](plugins/suggest-awesome-github-copilot/) | Discover and install GitHub Copilot assets from the awesome-copilot repository. |
+
+## Installation
+
+### VS Code / VS Code Insiders
+
+Add the marketplace to your VS Code `settings.json`:
+
+```jsonc
+// settings.json
+{
+  "chat.plugins.enabled": true,
+  "chat.plugins.marketplaces": ["PlagueHO/skills"]
+}
+```
+
+Once configured, type `/plugins` in Copilot Chat or use the `@agentPlugins`
+filter in Extensions to browse and install plugins from the marketplace.
+
+### Copilot CLI / Claude Code
+
+1. Launch Copilot CLI or Claude Code
+2. Add the marketplace:
+
+   ```text
+   /plugin marketplace add PlagueHO/skills
+   ```
+
+3. Install a plugin:
+
+   ```text
+   /plugin install <plugin>@plagueho-agent-skills
+   ```
+
+4. Restart to load the new plugins
+5. View available skills:
+
+   ```text
+   /skills
+   ```
+
+## Repository Structure
+
+```text
+PlagueHO/skills/
+├── plugins/                    # Agent plugin bundles (canonical layout)
+│   ├── <plugin-name>/
+│   │   ├── plugin.json         # Plugin definition (source of truth)
+│   │   ├── README.md           # Plugin documentation
+│   │   └── skills/
+│   │       └── <skill-name>/
+│   │           └── SKILL.md
+│   └── ...
+├── tests/                      # Skill tests
+│   └── <skill-name>/
+│       └── trigger_tests.yaml
+├── scripts/                    # Marketplace build scripts
+│   ├── Update-MarketplaceFromPlugins.ps1
+│   └── update-marketplace-from-plugins.sh
+├── docs/                       # Reference documentation
+│   └── SKILLS.md
+├── .github/
+│   ├── plugin/                 # Marketplace index and schemas
+│   │   ├── marketplace.json
+│   │   ├── marketplace.schema.json
+│   │   └── plugin.schema.json
+│   ├── workflows/              # CI workflows
+│   ├── CODEOWNERS
+│   └── copilot-instructions.md
+├── .claude-plugin/             # Claude plugin registry
+│   └── marketplace.json
+├── CONTRIBUTING.md
+├── AGENTS.md
+├── LICENSE
+├── SECURITY.md
+└── README.md
+```
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines and how
+to add a new plugin.
+
+## License
+
+See [LICENSE](LICENSE) for details.

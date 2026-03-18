@@ -1,0 +1,21 @@
+{
+  "name": "plagueho-skills",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint:md": "markdownlint-cli2",
+    "lint:md:fix": "markdownlint-cli2 --fix",
+    "lint:md:ci": "markdownlint-cli2"
+  },
+  "devDependencies": {
+    "markdownlint-cli2": "^0.21.0"
+  },
+  "description": "Agent plugin marketplace for Daniel Scott-Raynsford (PlagueHO)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PlagueHO/skills.git"
+  },
+  "author": "Daniel Scott-Raynsford",
+  "license": "MIT"
+}

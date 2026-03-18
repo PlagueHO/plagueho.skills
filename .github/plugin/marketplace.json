@@ -1,0 +1,57 @@
+{
+  "name": "plagueho-agent-skills",
+  "metadata": {
+    "description": "Agent plugin marketplace for Daniel Scott-Raynsford.",
+    "version": "1.0.0",
+    "pluginRoot": "./plugins"
+  },
+  "owner": {
+    "name": "Daniel Scott-Raynsford",
+    "email": "dscottraynsford@outlook.com",
+    "url": "https://github.com/PlagueHO"
+  },
+  "plugins": [
+    {
+      "name": "azure-architecture-review",
+      "source": "azure-architecture-review",
+      "description": "Review Azure Architecture Center multitenant guidance for currency.",
+      "version": "1.0.0"
+    },
+    {
+      "name": "azure-infrastructure",
+      "source": "azure-infrastructure",
+      "description": "Provision Azure identities and manage Azure Verified Module versions.",
+      "version": "1.0.0"
+    },
+    {
+      "name": "content-and-learning",
+      "source": "content-and-learning",
+      "description": "Review content for AI readiness and generate Microsoft technology learning pathways.",
+      "version": "1.0.0"
+    },
+    {
+      "name": "developer-environment",
+      "source": "developer-environment",
+      "description": "Scaffold dotfiles repos and sync VS Code profiles across editions.",
+      "version": "1.0.0"
+    },
+    {
+      "name": "dotnet-modernization",
+      "source": "dotnet-modernization",
+      "description": "Convert legacy .NET project files to modern SDK-style format.",
+      "version": "1.0.0"
+    },
+    {
+      "name": "skill-lifecycle",
+      "source": "skill-lifecycle",
+      "description": "Create, convert, and generate agent skills from prompts and pull requests.",
+      "version": "1.0.0"
+    },
+    {
+      "name": "suggest-awesome-github-copilot",
+      "source": "suggest-awesome-github-copilot",
+      "description": "Discover and install GitHub Copilot assets from the awesome-copilot repository.",
+      "version": "1.0.0"
+    }
+  ]
+}

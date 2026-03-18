@@ -1,0 +1,64 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for secrets in code
+        uses: trufflesecurity/trufflehog@v3.93.8
+        with:
+          path: ./
+          extra_args: --only-verified
+
+      - name: Validate YAML files
+        run: |
+          find . \( -name "*.yml" -o -name "*.yaml" \) -not -path "./.git/*" | while read file; do
+            python3 -c "import yaml; yaml.safe_load(open('$file'))" && echo "✓ $file" || echo "✗ $file"
+          done
+
+      - name: Validate JSON files
+        run: |
+          find . -name "*.json" | grep -v ".git/" | grep -v "node_modules/" | while read file; do
+            python3 -c "import json; json.load(open('$file'))" && echo "✓ $file" || echo "✗ $file"
+          done
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Validate Markdown
+        run: pnpm lint:md
+
+      - name: Validate marketplace.json schema
+        run: npx --yes ajv-cli validate -s .github/plugin/marketplace.schema.json -d .github/plugin/marketplace.json
+
+      - name: Validate plugin.json schemas
+        run: |
+          find plugins -maxdepth 2 -name 'plugin.json' -exec \
+            npx --yes ajv-cli validate -s .github/plugin/plugin.schema.json -d {} \;
+
+      - name: Verify marketplace.json and .claude-plugin/marketplace.json are in sync
+        run: diff .github/plugin/marketplace.json .claude-plugin/marketplace.json

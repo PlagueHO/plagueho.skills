@@ -1,0 +1,23 @@
+{
+  "name": "skill-lifecycle",
+  "description": "Create, convert, and generate agent skills from prompts and pull requests.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Daniel Scott-Raynsford",
+    "url": "https://github.com/PlagueHO"
+  },
+  "repository": "https://github.com/PlagueHO/skills",
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "agents",
+    "prompts",
+    "scaffolding",
+    "lifecycle"
+  ],
+  "skills": [
+    "./skills/skill-creator",
+    "./skills/convert-prompt-to-skill",
+    "./skills/create-skill-from-pr"
+  ]
+}
