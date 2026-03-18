@@ -54,13 +54,13 @@
     <circle class="pip" cx="482" cy="160" r="4"/>
   </g>
 
-  <!-- Slide 2: azure-architecture-review -->
+  <!-- Slide 2: azure-architecture-center -->
   <g class="card">
     <text class="emoji" x="40" y="70">&#x1F3DB;</text>
-    <text class="title" x="90" y="58">azure-architecture-review</text>
-    <text class="desc" x="90" y="82">Review Azure Architecture Center multitenant guidance for currency</text>
-    <text class="count" x="90" y="106">2 skills: review-aac-multitenant-guidance, review-aac-multitenant-doc</text>
-    <text class="path" x="90" y="128">plugins/azure-architecture-review/</text>
+    <text class="title" x="90" y="58">azure-architecture-center</text>
+    <text class="desc" x="90" y="82">For AAC doc maintainers: review multitenant guidance and docs for currency</text>
+    <text class="count" x="90" y="106">2 skills: review-multitenant-guidance, review-multitenant-doc</text>
+    <text class="path" x="90" y="128">plugins/azure-architecture-center/</text>
     <circle class="pip" cx="342" cy="160" r="4"/>
     <circle class="pip-on" cx="362" cy="160" r="4"/>
     <circle class="pip" cx="382" cy="160" r="4"/>

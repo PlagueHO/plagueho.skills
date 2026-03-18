@@ -12,7 +12,7 @@ Agent Skills standard, see [agentskills.io](https://agentskills.io).
 
 | Plugin | Description |
 |--------|-------------|
-| [azure-architecture-review](plugins/azure-architecture-review/) | Review Azure Architecture Center multitenant guidance for currency. |
+| [azure-architecture-center](plugins/azure-architecture-center/) | Skills for Azure Architecture Center documentation maintainers: review multitenant guidance and docs. |
 | [azure-infrastructure](plugins/azure-infrastructure/) | Provision Azure identities and manage Azure Verified Module versions. |
 | [content-and-learning](plugins/content-and-learning/) | Review content for AI readiness and generate Microsoft technology learning pathways. |
 | [developer-environment](plugins/developer-environment/) | Scaffold dotfiles repos and sync VS Code profiles across editions. |

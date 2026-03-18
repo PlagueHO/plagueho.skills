@@ -1,5 +1,5 @@
 ---
-name: review-aac-multitenant-doc
+name: review-multitenant-doc
 
 description: >-
   **ANALYSIS SKILL** — Review Azure Architecture Center multitenant

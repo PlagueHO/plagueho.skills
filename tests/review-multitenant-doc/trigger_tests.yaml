@@ -1,5 +1,5 @@
-name: review-aac-multitenant-doc-triggers
-skill: review-aac-multitenant-doc
+name: review-multitenant-doc-triggers
+skill: review-multitenant-doc
 
 # Prompts that SHOULD activate this skill
 # Generated from "WHEN:" trigger phrases in frontmatter

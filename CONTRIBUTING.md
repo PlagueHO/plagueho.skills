@@ -44,7 +44,7 @@ plugins/<plugin>/skills/<skill-name>/SKILL.md
 
 Use short, kebab-case names that mirror how developers naturally phrase the
 task — e.g., `update-avm-modules`, `create-dotfiles-repo`,
-`review-aac-multitenant-guidance`.
+`review-multitenant-guidance`.
 
 ### SKILL.md Frontmatter
 

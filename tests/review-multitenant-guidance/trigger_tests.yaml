@@ -1,5 +1,5 @@
-name: review-aac-multitenant-guidance-triggers
-skill: review-aac-multitenant-guidance
+name: review-multitenant-guidance-triggers
+skill: review-multitenant-guidance
 
 # Prompts that SHOULD activate this skill
 # Generated from "WHEN:" trigger phrases in frontmatter

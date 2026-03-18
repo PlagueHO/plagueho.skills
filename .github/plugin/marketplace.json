@@ -12,9 +12,9 @@
   },
   "plugins": [
     {
-      "name": "azure-architecture-review",
-      "source": "azure-architecture-review",
-      "description": "Review Azure Architecture Center multitenant guidance for currency.",
+      "name": "azure-architecture-center",
+      "source": "azure-architecture-center",
+      "description": "Skills for Azure Architecture Center documentation maintainers: review multitenant guidance and docs for currency, accuracy, and completeness.",
       "version": "1.0.0"
     },
     {
