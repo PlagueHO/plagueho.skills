@@ -4,6 +4,12 @@ This repository contains Daniel Scott-Raynsford's curated set of agent
 skills and plugin bundles for coding agents. For information about the
 Agent Skills standard, see [agentskills.io](https://agentskills.io).
 
+> **Note:** This is a personal repository/marketplace for plugins, skills,
+> and agents that I develop and use across my own projects. When a plugin or
+> skill proves to be generally beneficial, it will be contributed upstream to
+> the [github/awesome-copilot](https://github.com/github/awesome-copilot)
+> community repository.
+
 ## What's Included
 
 <p align="center">
