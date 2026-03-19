@@ -32,7 +32,7 @@ Service-Specific) as determined by its folder path under
 
 > **Important:** "Tenant" means your customers or user groups — not Microsoft
 > Entra tenants. Do not confuse these concepts throughout the review.
-
+>
 > **Scope exclusion — Microsoft Learn Build checks:** Do NOT review for
 > general link validity, general clarity, general consistency, inclusive
 > language, general terminology, or general tone. These are validated

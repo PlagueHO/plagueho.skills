@@ -59,37 +59,37 @@ Apply these analysis categories:
 
 #### 2b. Clarity and Precision
 
-5. **Imperative voice** — Convert passive voice to active. Convert conditional
+1. **Imperative voice** — Convert passive voice to active. Convert conditional
    instructions to imperative where the condition is always true.
-6. **One idea per sentence** — Break compound sentences with multiple clauses
+2. **One idea per sentence** — Break compound sentences with multiple clauses
    into separate concise sentences.
-7. **Specific over vague** — Replace vague quantifiers ("some", "various",
+3. **Specific over vague** — Replace vague quantifiers ("some", "various",
    "several") with specific values or remove. Replace "etc." with actual items
    or remove.
-8. **Tell what to do** — Prefer positive instructions over negations. Reserve
+4. **Tell what to do** — Prefer positive instructions over negations. Reserve
    "do not" for critical guardrails only.
-9. **Remove meta-commentary** — Remove statements about the instructions
+5. **Remove meta-commentary** — Remove statements about the instructions
    themselves ("This section explains how to...").
 
 #### 2c. AI Readability and Structure
 
-10. **Section order** — Verify the definition follows the recommended order:
+1. **Section order** — Verify the definition follows the recommended order:
     Identity → Instructions → Examples → Context.
-11. **Heading hierarchy** — Ensure consistent heading levels that convey
+2. **Heading hierarchy** — Ensure consistent heading levels that convey
     logical structure. Each section should have a clear purpose.
-12. **Structural markup** — Use Markdown headers for sections, XML tags for
+3. **Structural markup** — Use Markdown headers for sections, XML tags for
     content boundaries (where appropriate), tables for structured data,
     fenced code blocks for code/commands.
-13. **Progressive disclosure** — Move detailed reference material (lookup
+4. **Progressive disclosure** — Move detailed reference material (lookup
     tables, extended examples, schemas) to `references/` files if the body
     exceeds 500 lines or ~5000 tokens. Keep the main body focused on workflow
     and constraints.
-14. **Decision points** — Make branching conditions explicit with both
+5. **Decision points** — Make branching conditions explicit with both
     branches specified. Flatten nested conditionals into decision tables
     where possible.
-15. **Example quality** — Verify examples are diverse, cover edge cases, and
+6. **Example quality** — Verify examples are diverse, cover edge cases, and
     are clearly separated from instructions (using tags or headings).
-16. **Context placement** — Place supporting data and reference material near
+7. **Context placement** — Place supporting data and reference material near
     the end, after instructions and examples.
 
 ### Step 3 — Apply Optimizations
