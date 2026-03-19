@@ -1,0 +1,23 @@
+{
+  "name": "github-workflows",
+  "description": "GitHub workflow skills for PR review evaluation and Copilot resource optimization.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Daniel Scott-Raynsford",
+    "url": "https://github.com/PlagueHO"
+  },
+  "repository": "https://github.com/PlagueHO/skills",
+  "license": "MIT",
+  "keywords": [
+    "github",
+    "pull-requests",
+    "code-review",
+    "copilot",
+    "optimization",
+    "workflows"
+  ],
+  "skills": [
+    "./skills/evaluate-pr-review-comments",
+    "./skills/optimize-github-copilot-resources"
+  ]
+}

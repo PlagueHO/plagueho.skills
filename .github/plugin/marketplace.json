@@ -42,6 +42,12 @@
       "version": "1.0.0"
     },
     {
+      "name": "github-workflows",
+      "source": "github-workflows",
+      "description": "GitHub workflow skills for PR review evaluation and Copilot resource optimization.",
+      "version": "1.0.0"
+    },
+    {
       "name": "skill-lifecycle",
       "source": "skill-lifecycle",
       "description": "Create, convert, and generate agent skills from prompts and pull requests.",
