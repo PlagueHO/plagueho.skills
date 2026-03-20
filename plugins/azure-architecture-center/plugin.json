@@ -1,7 +1,7 @@
 {
   "name": "azure-architecture-center",
-  "description": "Skills for Azure Architecture Center documentation maintainers: review multitenant guidance and docs for currency, accuracy, and completeness.",
-  "version": "1.1.0",
+  "description": "Skills for Azure Architecture Center documentation maintainers: discover needed updates and review multitenant docs for currency, accuracy, and completeness.",
+  "version": "2.0.0",
   "author": {
     "name": "Daniel Scott-Raynsford",
     "url": "https://github.com/PlagueHO"
@@ -17,7 +17,9 @@
     "review"
   ],
   "skills": [
-    "./skills/review-multitenant-guidance",
-    "./skills/review-multitenant-doc"
+    "./skills/discover-multitenant-service-updates",
+    "./skills/review-multitenant-service-specific-doc",
+    "./skills/review-multitenant-approaches-doc",
+    "./skills/review-multitenant-considerations-doc"
   ]
 }

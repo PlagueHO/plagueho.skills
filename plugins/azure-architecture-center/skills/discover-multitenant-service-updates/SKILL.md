@@ -1,18 +1,23 @@
 ---
-name: review-multitenant-guidance
+name: discover-multitenant-service-updates
 
 description: >-
-  **ANALYSIS SKILL** — Review Azure Architecture Center multitenant
-  service-specific guidance for currency. Produces a structured report
-  of multitenant-relevant changes. WHEN: "review multitenant guidance",
-  "check AAC multitenant doc", "multitenant architecture review",
-  "review Azure Architecture Center", "is this multitenant doc current".
+  **DISCOVERY SKILL** — Identify new or changed Azure service features
+  that may need to be added to an AAC multitenant service-specific
+  guidance document. Searches Azure Updates, What's New pages, and
+  Microsoft Learn to produce a gap report of multitenant-relevant
+  changes since the document's last review date. Use this BEFORE
+  updating a doc; use the review-multitenant-*-doc skills AFTER.
+  WHEN: "discover multitenant updates", "what needs updating in
+  multitenant doc", "find new Azure features for multitenant doc",
+  "audit multitenant currency", "what changed since last review",
+  "multitenant gap analysis", "scan service doc for updates".
   INVOKES: microsoft-learn MCP, fetch, think tools. FOR SINGLE
   OPERATIONS: Use Microsoft Learn MCP directly.
 
 metadata:
   author: PlagueHO
-  version: "1.0"
+  version: "2.0"
   reference: https://learn.microsoft.com/en-us/azure/architecture/guide/multitenant/overview
 
 compatibility:
@@ -23,21 +28,30 @@ compatibility:
 
 argument-hint: >-
   Provide the path to the Azure Architecture Center multitenant
-  service-specific guidance document to review (e.g.,
+  service-specific guidance document to scan for needed updates (e.g.,
   "docs/multitenant/service/app-service-content.md").
 
 user-invocable: true
 ---
 
-# Review AAC Multitenant Service-Specific Guidance
+# Discover Updates for AAC Multitenant Service-Specific Guidance
 
-Review an Azure Architecture Center multitenant service-specific guidance
-document for currency and relevance. Analyze whether the document reflects
-the latest Azure service features that uniquely benefit multitenant solutions,
-and produce a structured report identifying updates needed.
+Identify new or changed Azure service features that may need to be added
+to an Azure Architecture Center multitenant service-specific guidance
+document. Analyze whether the document reflects the latest Azure service
+features that uniquely benefit multitenant solutions, and produce a
+structured gap report identifying updates needed.
 
 > **Important:** "Tenant" means your customers or user groups — not Microsoft
 > Entra tenants. Do not confuse these concepts throughout the review.
+>
+> **How this skill differs from the review skills:**
+> This skill identifies *what might need updating* by researching Azure
+> service changes since the document's last review date. It runs **before**
+> you make edits. The `review-multitenant-*-doc` skills validate a document
+> **after** it has been updated — checking structure, accuracy, and
+> terminology. Typical workflow: run this skill first to discover gaps,
+> update the document, then run the appropriate review skill.
 
 ## Prerequisites
 
@@ -149,9 +163,9 @@ uniquely benefits solutions serving multiple tenant groups. Examples:
 - The benefit applies equally to single-tenant and multitenant architectures
   with no distinguishing multitenant advantage.
 
-### Step 6 — Build the Findings Table
+### Step 6 — Build the Discovered Updates Table
 
-For each relevant finding, add a row to the report table in `report.md`:
+For each relevant discovered update, add a row to the report table in `report.md`:
 
 | Column | Description |
 |--------|-------------|
@@ -178,8 +192,8 @@ Complete the `report.md` file:
 1. Fill in any remaining header fields (total findings, recommendation).
 2. If no relevant changes were found, set the summary to:
    `🎇 No changes needed.`
-3. If changes were found, add a closing section offering to provide
-   suggested text for any updates that should be made to the document.
+3. If updates were found, add a closing section offering to provide
+   suggested text for any changes that should be made to the document.
 4. Write the final `report.md` to disk.
 
 > **Important:** Do NOT modify the reviewed document itself. The report is

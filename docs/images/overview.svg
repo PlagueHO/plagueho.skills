@@ -43,7 +43,7 @@
     <text class="title" x="90" y="58">Quick Start</text>
     <text class="desc" x="90" y="82">Add to VS Code settings.json to install plugins via Copilot Chat:</text>
     <text class="path" x="90" y="108">"chat.plugins.marketplaces": ["PlagueHO/skills"]</text>
-    <text class="count" x="90" y="130">7 plugins &#x2022; 16+ skills &#x2022; ready to install</text>
+    <text class="count" x="90" y="130">7 plugins &#x2022; 18+ skills &#x2022; ready to install</text>
     <circle class="pip-on" cx="342" cy="160" r="4"/>
     <circle class="pip" cx="362" cy="160" r="4"/>
     <circle class="pip" cx="382" cy="160" r="4"/>
@@ -59,7 +59,7 @@
     <text class="emoji" x="40" y="70">&#x1F3DB;</text>
     <text class="title" x="90" y="58">azure-architecture-center</text>
     <text class="desc" x="90" y="82">For AAC doc maintainers: review multitenant guidance and docs for currency</text>
-    <text class="count" x="90" y="106">2 skills: review-multitenant-guidance, review-multitenant-doc</text>
+    <text class="count" x="90" y="106">4 skills: discover-multitenant-service-updates, review-multitenant-*-doc (&#x00D7;3)</text>
     <text class="path" x="90" y="128">plugins/azure-architecture-center/</text>
     <circle class="pip" cx="342" cy="160" r="4"/>
     <circle class="pip-on" cx="362" cy="160" r="4"/>

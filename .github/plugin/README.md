@@ -47,7 +47,7 @@ metadata, skills, agents, and hooks. The root `marketplace.json` is
 
 | Plugin | Skills | Description |
 |--------|--------|-------------|
-| [`azure-architecture-center`](../../plugins/azure-architecture-center/) | `review-multitenant-guidance`, `review-multitenant-doc` | Skills for Azure Architecture Center documentation maintainers: review multitenant guidance and docs. |
+| [`azure-architecture-center`](../../plugins/azure-architecture-center/) | `discover-multitenant-service-updates`, `review-multitenant-doc` | Skills for Azure Architecture Center documentation maintainers: discover needed updates and review multitenant docs. |
 | [`azure-infrastructure`](../../plugins/azure-infrastructure/) | `azure-github-managed-identity`, `update-avm-modules` | Provision Azure identities and manage Azure Verified Module versions. |
 | [`content-and-learning`](../../plugins/content-and-learning/) | `ai-content-readiness-review`, `create-learning-pathway` | Review content for AI readiness and generate Microsoft technology learning pathways. |
 | [`developer-environment`](../../plugins/developer-environment/) | `create-dotfiles-repo`, `vscode-profile-sync` | Scaffold dotfiles repos and sync VS Code profiles across editions. |

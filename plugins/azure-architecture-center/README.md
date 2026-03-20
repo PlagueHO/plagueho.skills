@@ -16,8 +16,10 @@ copilot plugin install azure-architecture-center@plagueho-agent-skills
 
 | Command | Description |
 |---------|-------------|
-| `/azure-architecture-center:review-multitenant-guidance` | Review Azure Architecture Center multitenant service-specific guidance for currency. Produces a structured report of multitenant-relevant changes. |
-| `/azure-architecture-center:review-multitenant-doc` | Review Azure Architecture Center multitenant documentation for accuracy, structure, and style. Produces a categorized review report. |
+| `/azure-architecture-center:discover-multitenant-service-updates` | Discover new or changed Azure service features that may need to be added to an AAC multitenant service-specific guidance document. Use BEFORE updating a doc. |
+| `/azure-architecture-center:review-multitenant-service-specific-doc` | Review AAC multitenant service-specific documentation for accuracy, structure, and product correctness. |
+| `/azure-architecture-center:review-multitenant-approaches-doc` | Review AAC multitenant approaches documentation for accuracy, structure, and product correctness. |
+| `/azure-architecture-center:review-multitenant-considerations-doc` | Review AAC multitenant considerations documentation for accuracy, structure, and product correctness. |
 
 ### Agents
 

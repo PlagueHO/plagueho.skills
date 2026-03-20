@@ -2,7 +2,7 @@
   "name": "plagueho-agent-skills",
   "metadata": {
     "description": "Agent plugin marketplace for Daniel Scott-Raynsford.",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "pluginRoot": "./plugins"
   },
   "owner": {
@@ -15,7 +15,7 @@
       "name": "azure-architecture-center",
       "source": "azure-architecture-center",
       "description": "Skills for Azure Architecture Center documentation maintainers: review multitenant guidance and docs for currency, accuracy, and completeness.",
-      "version": "1.1.0"
+      "version": "2.0.0"
     },
     {
       "name": "azure-infrastructure",

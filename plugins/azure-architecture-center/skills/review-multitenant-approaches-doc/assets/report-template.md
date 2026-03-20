@@ -4,7 +4,7 @@
 |-------|-------|
 | **Document Reviewed** | <!-- path to the reviewed document --> |
 | **Category** | <!-- Approaches / Considerations / Service-Specific --> |
-| **Azure Service** | <!-- name of the Azure service (if applicable) --> |
+| **Azure Service** | <!-- service category (e.g., Compute, Networking) --> |
 | **ms.date Value** | <!-- ms.date from front matter (mm/dd/yyyy) --> |
 | **ms.date Status** | <!-- ✅ Current / ⚠️ Outdated (expected: today's date) --> |
 | **Review Performed** | <!-- today's date (yyyy-mm-dd) --> |
@@ -40,7 +40,7 @@ multitenant-relevant features for this service. -->
 | Icon | Level | Definition |
 |------|-------|------------|
 | 🔴 | Critical | Incorrect product info, wrong service limits, deprecated feature without disclaimer, preview feature shown as GA, verified technical inaccuracy |
-| 🟠 | Important | Missing required sections, incomplete multitenancy coverage, feature lacks unique multitenant differentiation, missing relevant service limits, significantly outdated ms.date |
+| 🟠 | Important | Missing required sections, incomplete multitenancy coverage, feature lacks unique multitenant differentiation, missing relevant service limits, significantly outdated ms.date, approaches doc reads like service-specific guidance |
 | 🟡 | Minor | Multitenancy terminology inconsistency, missing cross-references to related AAC docs, diagram alt-text pattern deviation |
 | ℹ️ | Info | Suggestion for improvement — not an issue (e.g., additional features worth mentioning) |
 
@@ -69,10 +69,11 @@ multitenant-relevant features for this service. -->
 | Product Correctness | Feature description, limit, or behavior is inaccurate |
 | Preview Status | Feature preview/GA status is missing or incorrect |
 | Deprecation | Feature is deprecated or retiring without disclaimer |
-| Multitenancy Relevance | Feature does not provide unique multitenant benefit |
+| Multitenancy Relevance | Pattern does not provide unique multitenant benefit |
+| Scope Boundary | Content belongs in Considerations or Service-Specific category, or reads like service-specific guidance |
 | Service Limit | Relevant service limit is missing or incorrect |
 | Structure | Missing or misordered required section |
-| Multitenancy Coverage | Missing multitenancy-specific concern |
+| Multitenancy Coverage | Missing multitenancy-specific theme (isolation, noisy neighbor, lifecycle, etc.) |
 | Terminology | Multitenancy/SaaS terminology issue |
 | Cross-Reference | Missing link to related AAC/WAF/pattern doc |
 | ms.date | Front matter date is outdated |
