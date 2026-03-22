@@ -4,86 +4,99 @@
 
 <#
 .SYNOPSIS
-    Creates and configures Azure User Assigned Managed Identities for GitHub Actions and Copilot.
+    Creates or updates a single Azure User Assigned Managed Identity for GitHub OIDC authentication.
 
 .DESCRIPTION
-    This script creates Azure User Assigned Managed Identities with Federated Credentials
-    for GitHub repositories. It sets up the identities for GitHub Actions environments
-    and GitHub Copilot (copilot environment) with proper RBAC role assignments.
+    Provisions one User Assigned Managed Identity (UAMI) with a Federated Identity Credential
+    and RBAC role assignments for passwordless GitHub authentication via OIDC. Run once per
+    identity needed (once per GitHub Actions environment, or once for the Copilot coding agent).
 
-    The script creates:
-    - A resource group named rg-github-<RepositoryName>-mi
-    - One User Assigned Managed Identity per GitHub environment
-    - An optional Managed Identity for the GitHub Copilot coding agent
-    - Federated Credentials for GitHub OIDC authentication
-    - RBAC role assignments (Contributor and conditional User Access Administrator)
+    Each invocation creates or verifies:
+    - A resource group named rg-github-<RepositoryName>-mi (or a custom name)
+    - One User Assigned Managed Identity (name derived from Type/Environment, or custom)
+    - A Federated Identity Credential binding the identity to the GitHub context
+    - RBAC role assignments at subscription scope (Contributor + User Access Administrator
+      with conditions, or a custom list)
+
+    The script is idempotent — existing resources are left unchanged and their details output.
 
 .PARAMETER RepositoryName
-    The name of the GitHub repository. This will be used to construct resource names
-    and federated credential subject identifiers.
+    The GitHub repository name. Used to derive resource group and identity names, and to
+    construct OIDC federated credential subjects.
 
-.PARAMETER Location
-    The Azure location where resources will be created.
-    Defaults to 'New Zealand North'.
-
-.PARAMETER SubscriptionId
-    The Azure Subscription ID where resources will be created. If not specified,
-    the current subscription context will be used.
-
-.PARAMETER GitHubOrganization
-    The GitHub organization or user name that owns the repository. Defaults to 'PlagueHO'.
+.PARAMETER Type
+    The identity type to provision. Accepted values:
+    - 'actions'     : For a GitHub Actions deployment environment (requires -Environment).
+    - 'codingAgent' : For the GitHub Copilot coding agent.
+    Defaults to 'actions'.
 
 .PARAMETER Environment
-    Array of GitHub environment names to create managed identities for. Defaults to @('test').
-    Each environment will get its own managed identity and federated credential.
-    The copilot environment is handled separately via the IncludeCopilot parameter.
+    The GitHub environment name (e.g. 'test', 'staging', 'prod'). Only used when
+    -Type is 'actions'. Defaults to 'test'.
 
-.PARAMETER IncludeCopilot
-    When true (default), creates a managed identity for GitHub Copilot coding agent.
-    The identity is named 'mi-copilot-coding-agent' and uses the 'copilot' environment.
+.PARAMETER GitHubOrganization
+    The GitHub organization or user account that owns the repository. Defaults to 'PlagueHO'.
+
+.PARAMETER SubscriptionId
+    The Azure subscription ID to deploy resources into. Defaults to the current context.
+
+.PARAMETER Location
+    The Azure region for the resource group and identity. Defaults to 'New Zealand North'.
+
+.PARAMETER ResourceGroupName
+    Overrides the default resource group name ('rg-github-<RepositoryName>-mi').
+
+.PARAMETER IdentityName
+    Overrides the computed UAMI name.
+    Defaults:
+    - actions type     : 'mi-actions-<RepositoryName>-<Environment>'
+    - codingAgent type : 'mi-coding-agent-<RepositoryName>'
+
+.PARAMETER RbacRoles
+    Array of RBAC role names to assign to the identity at subscription scope.
+    Defaults to @('Contributor', 'User Access Administrator').
+    When 'User Access Administrator' is included it is always assigned with a condition
+    that prevents granting Owner, User Access Administrator, or Role Based Access Control
+    Administrator to any principal.
+
+.PARAMETER RemoveUnlistedRoles
+    When specified, removes any subscription-scope role assignments for this identity
+    that are not present in -RbacRoles. By default, unlisted roles are left intact.
 
 .PARAMETER Force
-    Skips confirmation prompts and proceeds with resource creation/updates.
+    Skips interactive confirmation prompts.
 
 .EXAMPLE
-    .\Update-AzureUserAssignedManagedIdentityForGitHub.ps1 -RepositoryName 'libris-maleficarum'
+    .\Update-AzureUserAssignedManagedIdentityForGitHub.ps1 -RepositoryName 'my-repo' -Type 'actions' -Environment 'test'
 
-    Creates the managed identities for the libris-maleficarum repository using default location.
-
-.EXAMPLE
-    .\Update-AzureUserAssignedManagedIdentityForGitHub.ps1 -RepositoryName 'my-repo' -Force
-
-    Creates the managed identities for my-repo repository without confirmation prompts.
+    Creates a GitHub Actions identity for the 'test' environment.
 
 .EXAMPLE
-    .\Update-AzureUserAssignedManagedIdentityForGitHub.ps1 -RepositoryName 'my-repo' -SubscriptionId '12345678-1234-1234-1234-123456789012'
+    .\Update-AzureUserAssignedManagedIdentityForGitHub.ps1 -RepositoryName 'my-repo' -Type 'codingAgent'
 
-    Creates the managed identities in a specific Azure subscription.
-
-.EXAMPLE
-    .\Update-AzureUserAssignedManagedIdentityForGitHub.ps1 -RepositoryName 'my-repo' -Environment @('test', 'staging', 'prod')
-
-    Creates managed identities for multiple environments plus the copilot environment.
+    Creates a Copilot coding agent identity.
 
 .EXAMPLE
-    .\Update-AzureUserAssignedManagedIdentityForGitHub.ps1 -RepositoryName 'my-repo' -IncludeCopilot:$false
+    foreach ($env in @('test', 'staging', 'prod')) {
+        .\Update-AzureUserAssignedManagedIdentityForGitHub.ps1 -RepositoryName 'my-repo' -Type 'actions' -Environment $env -Force
+    }
 
-    Creates managed identity for test environment only, without the copilot coding agent.
+    Creates identities for three GitHub Actions environments.
+
+.EXAMPLE
+    .\Update-AzureUserAssignedManagedIdentityForGitHub.ps1 -RepositoryName 'my-repo' -Type 'actions' -Environment 'prod' `
+        -RbacRoles @('Contributor') -RemoveUnlistedRoles
+
+    Ensures only the Contributor role is assigned, removing any others.
 
 .OUTPUTS
-    PSCustomObject
-    Returns an object containing the created resource details including:
-    - ResourceGroupName
-    - Location
-    - Identities (array of created managed identities)
-    - RBACRoles
-    - CreatedDate
+    PSCustomObject with properties: ResourceGroupName, Location, IdentityName, ClientId,
+    PrincipalId, FederatedCredentialName, Subject, RbacRoles, TenantId, SubscriptionId.
 
 .NOTES
-    Author: GitHub Copilot
-    Requires: Az.Accounts, Az.Resources, Az.ManagedServiceIdentity PowerShell modules
-    Requires: User must be authenticated to Azure (Connect-AzAccount)
-    Requires: User must have permissions to create resources and assign roles in the subscription
+    Requires: Az.Accounts, Az.Resources, Az.ManagedServiceIdentity PowerShell modules.
+    Requires: Authenticated Azure session (Connect-AzAccount).
+    Requires: Permission to create resource groups, managed identities, and assign RBAC roles.
 
 .LINK
     https://learn.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview
@@ -95,12 +108,12 @@ param(
     [string]$RepositoryName,
 
     [Parameter()]
-    [ValidateNotNullOrEmpty()]
-    [string]$Location = 'New Zealand North',
+    [ValidateSet('actions', 'codingAgent')]
+    [string]$Type = 'actions',
 
     [Parameter()]
     [ValidateNotNullOrEmpty()]
-    [string]$SubscriptionId,
+    [string]$Environment = 'test',
 
     [Parameter()]
     [ValidateNotNullOrEmpty()]
@@ -108,10 +121,26 @@ param(
 
     [Parameter()]
     [ValidateNotNullOrEmpty()]
-    [string[]]$Environment = @('test'),
+    [string]$SubscriptionId,
 
     [Parameter()]
-    [switch]$IncludeCopilot = $true,
+    [ValidateNotNullOrEmpty()]
+    [string]$Location = 'New Zealand North',
+
+    [Parameter()]
+    [ValidateNotNullOrEmpty()]
+    [string]$ResourceGroupName,
+
+    [Parameter()]
+    [ValidateNotNullOrEmpty()]
+    [string]$IdentityName,
+
+    [Parameter()]
+    [ValidateNotNullOrEmpty()]
+    [string[]]$RbacRoles = @('Contributor', 'User Access Administrator'),
+
+    [Parameter()]
+    [switch]$RemoveUnlistedRoles,
 
     [Parameter()]
     [switch]$Force
@@ -371,24 +400,36 @@ begin {
         }
     }
 
-    function Grant-ManagedIdentityRBAC {
+    function Set-ManagedIdentityRbacRoles {
         <#
         .SYNOPSIS
-            Assigns RBAC roles to a managed identity.
+            Assigns RBAC roles to a managed identity at subscription scope.
 
         .DESCRIPTION
-            Assigns Contributor and conditional User Access Administrator roles to a
-            managed identity at the subscription scope. The User Access Administrator
-            role includes conditions to prevent assignment of privileged roles.
+            Assigns the specified RBAC roles to a managed identity. When 'User Access
+            Administrator' is included, it is always assigned with a condition that prevents
+            the identity from granting Owner, User Access Administrator, or Role Based Access
+            Control Administrator to any principal.
+
+            Existing assignments not in the provided list are left unchanged unless
+            -RemoveUnlistedRoles is specified.
 
         .PARAMETER PrincipalId
             The principal ID of the managed identity.
 
         .PARAMETER IdentityName
-            The name of the identity (for logging).
+            The name of the identity (used in log messages).
 
         .PARAMETER SubscriptionId
-            The subscription ID for role scope.
+            The subscription ID used to build the role assignment scope.
+
+        .PARAMETER RbacRoles
+            Array of RBAC role names to assign. Defaults to Contributor and User Access
+            Administrator when called from the main script.
+
+        .PARAMETER RemoveUnlistedRoles
+            When set, removes any subscription-scope role assignments for this identity
+            that are not present in -RbacRoles.
 
         .PARAMETER Force
             Skip confirmation prompts.
@@ -404,126 +445,122 @@ begin {
             [Parameter(Mandatory = $true)]
             [string]$SubscriptionId,
 
+            [Parameter(Mandatory = $true)]
+            [string[]]$RbacRoles,
+
+            [Parameter()]
+            [switch]$RemoveUnlistedRoles,
+
             [Parameter()]
             [switch]$Force
         )
 
-        Write-Verbose "Configuring RBAC roles for $IdentityName"
+        Write-Verbose "Configuring RBAC roles for '$IdentityName'"
         $subscriptionScope = "/subscriptions/$SubscriptionId"
         $maxRetries = 3
-        $retryDelaySeconds = 5
+        $retryDelaySecs = 5
 
-        # Assign Contributor role
-        $contributorRoleDefinitionId = (Get-AzRoleDefinition -Name 'Contributor').Id
-        $contributorAssignment = Get-AzRoleAssignment `
-            -ObjectId $PrincipalId `
-            -RoleDefinitionId $contributorRoleDefinitionId `
-            -Scope $subscriptionScope `
-            -ErrorAction SilentlyContinue
+        # Pre-fetch prohibited role IDs needed for the UAA condition
+        $ownerRoleId       = (Get-AzRoleDefinition -Name 'Owner').Id
+        $uaaRoleId         = (Get-AzRoleDefinition -Name 'User Access Administrator').Id
+        $rbacAdminRoleId   = (Get-AzRoleDefinition -Name 'Role Based Access Control Administrator').Id
+        $uaaCondition      = "((!(ActionMatches{'Microsoft.Authorization/roleAssignments/write'})) OR (@Request[Microsoft.Authorization/roleAssignments:RoleDefinitionId] ForAnyOfAnyValues:GuidNotEquals {$ownerRoleId, $uaaRoleId, $rbacAdminRoleId}))"
+        $uaaConditionVersion = '2.0'
 
-        if (-not $contributorAssignment) {
-            if ($Force -or $PSCmdlet.ShouldProcess("Contributor role to $IdentityName", "Assign role")) {
-                Write-Verbose "Assigning Contributor role to $IdentityName"
+        # Assign each requested role
+        foreach ($roleName in $RbacRoles) {
+            $roleDefinition = Get-AzRoleDefinition -Name $roleName -ErrorAction SilentlyContinue
+            if (-not $roleDefinition) {
+                Write-Warning "Role '$roleName' not found in Azure — skipping."
+                continue
+            }
 
-                $retryCount = 0
-                $success = $false
-                while (-not $success -and $retryCount -lt $maxRetries) {
-                    try {
-                        New-AzRoleAssignment `
-                            -ObjectId $PrincipalId `
-                            -RoleDefinitionName 'Contributor' `
-                            -Scope $subscriptionScope `
-                            -ErrorAction Stop | Out-Null
-                        $success = $true
-                        Write-Warning "Contributor role assigned to '$IdentityName'"
-                    }
-                    catch {
-                        $retryCount++
-                        if ($retryCount -lt $maxRetries) {
-                            Write-Verbose "Role assignment failed (attempt $retryCount/$maxRetries). Waiting $retryDelaySeconds seconds before retry..."
-                            Start-Sleep -Seconds $retryDelaySeconds
+            $existingAssignment = Get-AzRoleAssignment `
+                -ObjectId $PrincipalId `
+                -RoleDefinitionId $roleDefinition.Id `
+                -Scope $subscriptionScope `
+                -ErrorAction SilentlyContinue
+
+            if (-not $existingAssignment) {
+                $actionDescription = if ($roleName -eq 'User Access Administrator') {
+                    "Assign '$roleName' (with least-privilege condition) to '$IdentityName'"
+                } else {
+                    "Assign '$roleName' to '$IdentityName'"
+                }
+
+                if ($Force -or $PSCmdlet.ShouldProcess($subscriptionScope, $actionDescription)) {
+                    Write-Verbose $actionDescription
+
+                    $retryCount = 0
+                    $assigned   = $false
+                    while (-not $assigned -and $retryCount -lt $maxRetries) {
+                        try {
+                            $assignParams = @{
+                                ObjectId           = $PrincipalId
+                                RoleDefinitionName = $roleName
+                                Scope              = $subscriptionScope
+                                ErrorAction        = 'Stop'
+                            }
+                            if ($roleName -eq 'User Access Administrator') {
+                                $assignParams['Condition']        = $uaaCondition
+                                $assignParams['ConditionVersion'] = $uaaConditionVersion
+                            }
+                            New-AzRoleAssignment @assignParams | Out-Null
+                            $assigned = $true
+                            Write-Warning "'$roleName' assigned to '$IdentityName'"
                         }
-                        else {
-                            Write-Warning "Failed to assign Contributor role after $maxRetries attempts: $_"
-                            throw
+                        catch {
+                            $retryCount++
+                            if ($retryCount -lt $maxRetries) {
+                                Write-Verbose "Assignment failed (attempt $retryCount/$maxRetries). Retrying in $retryDelaySecs seconds..."
+                                Start-Sleep -Seconds $retryDelaySecs
+                            }
+                            else {
+                                Write-Warning "Failed to assign '$roleName' after $maxRetries attempts: $_"
+                                throw
+                            }
                         }
                     }
                 }
             }
+            else {
+                Write-Verbose "'$roleName' already assigned to '$IdentityName'"
+            }
         }
-        else {
-            Write-Verbose "Contributor role already assigned to $IdentityName"
-        }
 
-        # Assign User Access Administrator role with conditions
-        $userAccessAdminRoleDefinitionId = (Get-AzRoleDefinition -Name 'User Access Administrator').Id
-        $uaaAssignment = Get-AzRoleAssignment `
-            -ObjectId $PrincipalId `
-            -RoleDefinitionId $userAccessAdminRoleDefinitionId `
-            -Scope $subscriptionScope `
-            -ErrorAction SilentlyContinue
+        # Optionally remove roles that are not in the requested list
+        if ($RemoveUnlistedRoles) {
+            $currentAssignments = Get-AzRoleAssignment `
+                -ObjectId $PrincipalId `
+                -Scope $subscriptionScope `
+                -ErrorAction SilentlyContinue
 
-        if (-not $uaaAssignment) {
-            if ($Force -or $PSCmdlet.ShouldProcess("User Access Administrator role to $IdentityName", "Assign role with conditions")) {
-                Write-Verbose "Assigning User Access Administrator role with conditions to $IdentityName"
-
-                # Get role definition IDs for prohibited roles
-                $ownerRoleId = (Get-AzRoleDefinition -Name 'Owner').Id
-                $uaaRoleId = (Get-AzRoleDefinition -Name 'User Access Administrator').Id
-                $rbacAdminRoleId = (Get-AzRoleDefinition -Name 'Role Based Access Control Administrator').Id
-
-                # Create condition to deny assignment of privileged roles
-                $condition = "((!(ActionMatches{'Microsoft.Authorization/roleAssignments/write'})) OR (@Request[Microsoft.Authorization/roleAssignments:RoleDefinitionId] ForAnyOfAnyValues:GuidNotEquals {$ownerRoleId, $uaaRoleId, $rbacAdminRoleId}))"
-                $conditionVersion = '2.0'
-
-                $retryCount = 0
-                $success = $false
-                while (-not $success -and $retryCount -lt $maxRetries) {
-                    try {
-                        New-AzRoleAssignment `
-                            -ObjectId $PrincipalId `
-                            -RoleDefinitionName 'User Access Administrator' `
-                            -Scope $subscriptionScope `
-                            -Condition $condition `
-                            -ConditionVersion $conditionVersion `
-                            -ErrorAction Stop | Out-Null
-                        $success = $true
-                        Write-Warning "User Access Administrator role (with conditions) assigned to '$IdentityName'"
-                        Write-Verbose "Condition prevents assignment of Owner, User Access Administrator, and RBAC Administrator roles"
-                    }
-                    catch {
-                        $retryCount++
-                        if ($retryCount -lt $maxRetries) {
-                            Write-Verbose "Role assignment failed (attempt $retryCount/$maxRetries). Waiting $retryDelaySeconds seconds before retry..."
-                            Start-Sleep -Seconds $retryDelaySeconds
-                        }
-                        else {
-                            Write-Warning "Failed to assign User Access Administrator role after $maxRetries attempts: $_"
-                            throw
-                        }
+            foreach ($assignment in $currentAssignments) {
+                if ($assignment.RoleDefinitionName -notin $RbacRoles) {
+                    if ($Force -or $PSCmdlet.ShouldProcess($assignment.RoleDefinitionName, "Remove unlisted role from '$IdentityName'")) {
+                        Write-Verbose "Removing unlisted role '$($assignment.RoleDefinitionName)' from '$IdentityName'"
+                        Remove-AzRoleAssignment -InputObject $assignment -ErrorAction Stop | Out-Null
+                        Write-Warning "Removed role '$($assignment.RoleDefinitionName)' from '$IdentityName'"
                     }
                 }
             }
-        }
-        else {
-            Write-Verbose "User Access Administrator role already assigned to $IdentityName"
         }
     }
 
     function Show-SetupSummary {
         <#
         .SYNOPSIS
-            Displays setup summary and next steps.
+            Displays the setup summary and next steps.
 
         .DESCRIPTION
-            Shows a formatted summary of created resources and instructions for
-            configuring GitHub repository secrets and environments.
+            Prints the output values needed to configure GitHub repository secrets,
+            along with a guide for referencing the identity in GitHub Actions workflows.
 
         .PARAMETER AzureContext
-            Hashtable containing subscription and tenant information.
+            Hashtable containing Subscription and Tenant information.
 
-        .PARAMETER Identities
-            Array of created managed identity objects.
+        .PARAMETER IdentityResult
+            PSCustomObject with the identity details output by the process block.
         #>
         [CmdletBinding()]
         param(
@@ -531,24 +568,23 @@ begin {
             [hashtable]$AzureContext,
 
             [Parameter(Mandatory = $true)]
-            [array]$Identities
+            [PSCustomObject]$IdentityResult
         )
 
         Write-Verbose "Displaying setup summary"
         Write-Host "`nNext Steps:" -ForegroundColor Cyan
-        Write-Host "1. Add the following secrets to your GitHub repository:" -ForegroundColor Yellow
-        Write-Host "   - AZURE_TENANT_ID: $($AzureContext.Tenant.Id)" -ForegroundColor White
-        Write-Host "   - AZURE_SUBSCRIPTION_ID: $($AzureContext.Subscription.Id)" -ForegroundColor White
+        Write-Host "1. Set the following repository-level secrets in GitHub:" -ForegroundColor Yellow
+        Write-Host "   AZURE_TENANT_ID       : $($AzureContext.Tenant.Id)" -ForegroundColor White
+        Write-Host "   AZURE_SUBSCRIPTION_ID : $($AzureContext.Subscription.Id)" -ForegroundColor White
 
-        $stepNumber = 2
-        foreach ($identity in $Identities) {
-            Write-Host "`n$stepNumber. For GitHub environment '$($identity.Environment)':" -ForegroundColor Yellow
-            Write-Host "   - AZURE_CLIENT_ID: $($identity.ClientId)" -ForegroundColor White
-            $stepNumber++
-        }
+        Write-Host "`n2. Set the following secret under GitHub environment '$($IdentityResult.Environment)':" -ForegroundColor Yellow
+        Write-Host "   AZURE_CLIENT_ID : $($IdentityResult.ClientId)" -ForegroundColor White
 
-        $environmentList = ($Identities.Environment | ForEach-Object { "'$_'" }) -join ', '
-        Write-Host "`n$stepNumber. Create GitHub environments $environmentList in your repository settings" -ForegroundColor Yellow
+        Write-Host "`n3. Reference the identity in your workflow:" -ForegroundColor Yellow
+        Write-Host "   permissions:" -ForegroundColor White
+        Write-Host "     id-token: write" -ForegroundColor White
+        Write-Host "   environment: $($IdentityResult.Environment)" -ForegroundColor White
+        Write-Host "   # azure/login@v2 with client-id, tenant-id, subscription-id secrets" -ForegroundColor White
     }
 
     #endregion
@@ -564,94 +600,94 @@ begin {
 
 process {
     try {
-        # Define resource names
-        $resourceGroupName = "rg-github-$RepositoryName-mi"
+        # Resolve resource group name
+        $resolvedResourceGroupName = if ($ResourceGroupName) {
+            $ResourceGroupName
+        } else {
+            "rg-github-$RepositoryName-mi"
+        }
 
-        # Create resource group
-        $resourceGroup = New-GitHubResourceGroup `
-            -ResourceGroupName $resourceGroupName `
+        # Resolve identity name and GitHub environment label based on Type
+        if ($Type -eq 'codingAgent') {
+            $resolvedIdentityName  = if ($IdentityName) { $IdentityName } else { "mi-coding-agent-$RepositoryName" }
+            $githubEnvironment     = 'copilot'
+            $federatedCredName     = "$GitHubOrganization-$RepositoryName-copilot"
+            $federatedSubject      = "repo:$GitHubOrganization/$($RepositoryName):environment:copilot"
+        } else {
+            # Type -eq 'actions'
+            $resolvedIdentityName  = if ($IdentityName) { $IdentityName } else { "mi-actions-$RepositoryName-$Environment" }
+            $githubEnvironment     = $Environment
+            $federatedCredName     = "$GitHubOrganization-$RepositoryName-$Environment"
+            $federatedSubject      = "repo:$GitHubOrganization/$($RepositoryName):environment:$Environment"
+        }
+
+        Write-Verbose "Resource group : $resolvedResourceGroupName"
+        Write-Verbose "Identity name  : $resolvedIdentityName"
+        Write-Verbose "GitHub env     : $githubEnvironment"
+        Write-Verbose "OIDC subject   : $federatedSubject"
+
+        # Ensure resource group exists
+        New-GitHubResourceGroup `
+            -ResourceGroupName $resolvedResourceGroupName `
             -Location $Location `
             -RepositoryName $RepositoryName `
+            -Force:$Force | Out-Null
+
+        # Ensure managed identity exists
+        $identity = New-GitHubManagedIdentity `
+            -ResourceGroupName $resolvedResourceGroupName `
+            -IdentityName $resolvedIdentityName `
+            -Location $Location `
             -Force:$Force
 
-        # Collection to store created identities
-        $createdIdentities = @()
+        # Ensure federated credential exists
+        New-GitHubFederatedCredential `
+            -ResourceGroupName $resolvedResourceGroupName `
+            -IdentityName $resolvedIdentityName `
+            -CredentialName $federatedCredName `
+            -Subject $federatedSubject `
+            -Force:$Force
 
-        # Add copilot environment if requested
-        $environmentsToProcess = $Environment
-        if ($IncludeCopilot) {
-            $environmentsToProcess = $Environment + @('copilot')
+        # Assign RBAC roles
+        Set-ManagedIdentityRbacRoles `
+            -PrincipalId $identity.PrincipalId `
+            -IdentityName $resolvedIdentityName `
+            -SubscriptionId $azureContext.Subscription.Id `
+            -RbacRoles $RbacRoles `
+            -RemoveUnlistedRoles:$RemoveUnlistedRoles `
+            -Force:$Force
+
+        # Build and emit result object
+        $result = [PSCustomObject]@{
+            ResourceGroupName       = $resolvedResourceGroupName
+            Location                = $Location
+            IdentityName            = $resolvedIdentityName
+            Environment             = $githubEnvironment
+            ClientId                = $identity.ClientId
+            PrincipalId             = $identity.PrincipalId
+            FederatedCredentialName = $federatedCredName
+            Subject                 = $federatedSubject
+            RbacRoles               = $RbacRoles
+            TenantId                = $azureContext.Tenant.Id
+            SubscriptionId          = $azureContext.Subscription.Id
         }
 
-        # Process each environment
-        foreach ($env in $environmentsToProcess) {
-            Write-Verbose "Processing environment: $env"
-
-            # Define identity name based on environment
-            if ($env -eq 'copilot') {
-                $identityName = 'mi-copilot-coding-agent'
-            }
-            else {
-                $identityName = "mi-github-actions-$env-environment"
-            }
-
-            # Create managed identity
-            $identity = New-GitHubManagedIdentity `
-                -ResourceGroupName $resourceGroupName `
-                -IdentityName $identityName `
-                -Location $Location `
-                -Force:$Force
-
-            # Create federated credential
-            $federatedCredentialName = "$GitHubOrganization-$RepositoryName-$env-env"
-            $subject = "repo:$GitHubOrganization/$($RepositoryName):environment:$env"
-
-            New-GitHubFederatedCredential `
-                -ResourceGroupName $resourceGroupName `
-                -IdentityName $identityName `
-                -CredentialName $federatedCredentialName `
-                -Subject $subject `
-                -Force:$Force
-
-            # Assign RBAC roles
-            Grant-ManagedIdentityRBAC `
-                -PrincipalId $identity.PrincipalId `
-                -IdentityName $identityName `
-                -SubscriptionId $azureContext.Subscription.Id `
-                -Force:$Force
-
-            # Add to collection
-            $createdIdentities += [PSCustomObject]@{
-                Environment             = $env
-                Name                    = $identityName
-                ClientId                = $identity.ClientId
-                PrincipalId             = $identity.PrincipalId
-                FederatedCredentialName = $federatedCredentialName
-                Subject                 = $subject
-            }
-        }
-
-        # Output summary
-        Write-Output ([PSCustomObject]@{
-            ResourceGroupName = $resourceGroupName
-            Location          = $Location
-            Identities        = $createdIdentities
-            RBACRoles         = @('Contributor', 'User Access Administrator (conditional)')
-            CreatedDate       = Get-Date
-        })
+        Write-Output $result
     }
     catch {
-        Write-Error "Failed to create or configure managed identities: $_"
+        Write-Error "Failed to create or configure managed identity: $_"
         throw
     }
 }
 
 end {
-    Write-Verbose "Azure User Assigned Managed Identity setup process completed"
+    Write-Verbose "Azure User Assigned Managed Identity setup completed"
 
-    Show-SetupSummary `
-        -AzureContext $azureContext `
-        -Identities $createdIdentities
+    if ($result) {
+        Show-SetupSummary `
+            -AzureContext $azureContext `
+            -IdentityResult $result
+    }
 }
 
 #endregion
