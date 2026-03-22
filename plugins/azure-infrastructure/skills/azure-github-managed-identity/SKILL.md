@@ -1,38 +1,44 @@
 ---
 name: azure-github-managed-identity
 
-description: "**WORKFLOW SKILL** — Provision Azure User Assigned Managed Identities with OIDC federation and RBAC for passwordless GitHub authentication. WHEN: \"set up Azure access for GitHub Actions\", \"configure managed identity for GitHub\", \"enable passwordless Azure authentication in CI/CD\", \"configure OIDC federation GitHub Azure\", \"Copilot coding agent Azure identity\". INVOKES: run_in_terminal for PowerShell. FOR SINGLE OPERATIONS: Use az CLI for simple role assignments."
+description: "**WORKFLOW SKILL** — Provision Azure User Assigned Managed Identity with OIDC federation and RBAC for passwordless GitHub authentication. WHEN: \"set up Azure access for GitHub Actions\", \"configure managed identity for GitHub\", \"enable passwordless Azure authentication in CI/CD\", \"configure OIDC federation GitHub Azure\", \"Copilot coding agent Azure identity\". INVOKES: run_in_terminal for PowerShell. FOR SINGLE OPERATIONS: Use az CLI for simple role assignments."
 
 metadata:
   author: PlagueHO
-  version: "1.0"
+  version: "2.0"
   reference: https://github.com/PlagueHO/plagueho.os/
 
-compatibility: Requires PowerShell 7+, Az.Accounts ≥ 5.3.2, Az.Resources ≥ 9.0.0, Az.ManagedServiceIdentity ≥ 2.0.0, and an authenticated Azure session (Connect-AzAccount) with permission to create resources and assign RBAC roles at subscription scope.
+compatibility: Requires PowerShell 7+, Az.Accounts ≥ 5.3.2, Az.Resources ≥ 9.0.0, Az.ManagedServiceIdentity ≥ 2.0.0, and an authenticated Azure session (Connect-AzAccount) with permission to create resource groups and assign RBAC roles at subscription scope.
 
-argument-hint: Provide the target GitHub repository name (e.g. `my-repo`) and optionally the GitHub organization, Azure subscription ID, Azure location, environment names, and whether to provision a Copilot coding agent identity.
+argument-hint: Provide the target GitHub repository name and identity type ('actions' or 'codingAgent'). For 'actions' type also provide the environment name. Optionally provide GitHub organization, Azure subscription ID, Azure location, and RBAC role overrides.
 
 user-invocable: true
 ---
 
 ## Overview
 
-This skill provisions the Azure infrastructure required for a GitHub repository to authenticate
-to Azure using OpenID Connect (OIDC) — no long-lived credentials required. It creates:
+This skill provisions **one** Azure User Assigned Managed Identity (UAMI) per invocation for
+GitHub OIDC authentication — no long-lived credentials required. To cover multiple environments
+or both GitHub Actions and Copilot coding agent, run the script once per identity needed.
 
-- A dedicated **resource group** (`rg-github-<repo>-mi`) to hold all GitHub integration resources
-- One **User Assigned Managed Identity** per GitHub environment (e.g. `test`, `staging`, `prod`)
-- An optional **User Assigned Managed Identity** for the GitHub Copilot coding agent (`mi-copilot-coding-agent`)
-- **Federated Identity Credentials** on each identity, bound to the matching GitHub environment via OIDC
-- **RBAC role assignments** on the subscription for each identity:
-  - `Contributor` — allows the identity to create and manage Azure resources
-  - `User Access Administrator` (with conditions) — allows the identity to assign roles, but prevents it from granting `Owner`, `User Access Administrator`, or `Role Based Access Control Administrator` to any principal
+Each invocation creates or verifies (idempotent):
+
+- A shared **resource group** (`rg-github-<RepositoryName>-mi`) for GitHub integration resources
+- One **User Assigned Managed Identity** for either a GitHub Actions deployment environment or
+  the GitHub Copilot coding agent
+- A **Federated Identity Credential** on the identity, binding it to the specified GitHub context
+  via OIDC
+- **RBAC role assignments** at subscription scope:
+  - `Contributor` — allows creating and managing Azure resources
+  - `User Access Administrator` (with conditions) — allows role assignment but prevents granting
+    `Owner`, `User Access Administrator`, or `Role Based Access Control Administrator` to any
+    principal
+
+If a resource already exists, the script skips creation and outputs the existing details.
 
 ## Prerequisites
 
-Before running this skill, ensure the following are met:
-
-1. **Azure PowerShell modules** are installed (the script will validate this):
+1. **Azure PowerShell modules** installed (the script validates this):
    - `Az.Accounts` ≥ 5.3.2
    - `Az.Resources` ≥ 9.0.0
    - `Az.ManagedServiceIdentity` ≥ 2.0.0
@@ -47,84 +53,155 @@ Before running this skill, ensure the following are met:
 
 3. The authenticated identity must have **subscription-level permissions** to:
    - Create resource groups
-   - Create managed identities in `Microsoft.ManagedIdentity`
+   - Create managed identities (`Microsoft.ManagedIdentity/userAssignedIdentities/write`)
    - Assign RBAC roles (`Microsoft.Authorization/roleAssignments/write`)
 
 ## Script
 
-The PowerShell script is located alongside this file at:
-`./Update-AzureUserAssignedManagedIdentityForGitHub.ps1`
+The PowerShell script is at:
+`./scripts/Update-AzureUserAssignedManagedIdentityForGitHub.ps1`
+
+## Script parameters
+
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| `RepositoryName` | Yes | — | GitHub repository name (not the full `org/repo` path) |
+| `Type` | No | `actions` | Identity purpose: `actions` (GitHub Actions environment) or `codingAgent` (Copilot coding agent) |
+| `Environment` | No | `test` | GitHub environment name — **only used when `Type` is `actions`** |
+| `GitHubOrganization` | No | `PlagueHO` | GitHub organization or user account owning the repository |
+| `SubscriptionId` | No | Current context | Azure subscription ID to deploy resources into |
+| `Location` | No | `New Zealand North` | Azure region for the resource group and identity |
+| `ResourceGroupName` | No | `rg-github-<RepositoryName>-mi` | Override the resource group name |
+| `IdentityName` | No | Computed (see naming) | Override the UAMI name |
+| `RbacRoles` | No | `@('Contributor','User Access Administrator')` | RBAC role names to assign at subscription scope — overrides the default set |
+| `RemoveUnlistedRoles` | No | `$false` | Remove any subscription-scope role assignments for this identity that are absent from `-RbacRoles` |
+| `Force` | No | `$false` | Skip interactive confirmation prompts |
+
+## Resource naming
+
+| Resource | Default name |
+|----------|-------------|
+| Resource group | `rg-github-<RepositoryName>-mi` |
+| UAMI — `actions` type | `mi-actions-<RepositoryName>-<Environment>` |
+| UAMI — `codingAgent` type | `mi-coding-agent-<RepositoryName>` |
+| Federated credential — `actions` | `<GitHubOrganization>-<RepositoryName>-<Environment>` |
+| Federated credential — `codingAgent` | `<GitHubOrganization>-<RepositoryName>-copilot` |
+
+Use `-ResourceGroupName` or `-IdentityName` to override the computed defaults when needed.
 
 ## How to use this skill
 
 ### Step 1 — Gather required information
 
-Ask the user for the following, or infer from context where possible:
+Ask the user for (or infer from context):
 
-| Parameter | Required | Default | Description |
-|-----------|----------|---------|-------------|
-| `RepositoryName` | Yes | — | The GitHub repository name (not the full `org/repo` path) |
-| `GitHubOrganization` | No | `PlagueHO` | The GitHub organization or user account that owns the repo |
-| `SubscriptionId` | No | Current context | The Azure subscription ID to deploy resources into |
-| `Location` | No | `New Zealand North` | Azure region for the resource group and identities |
-| `Environment` | No | `@('test')` | One or more GitHub environment names to set up GitHub Actions identities for |
-| `IncludeCopilot` | No | `$true` | Whether to also create a managed identity for the Copilot coding agent |
-| `Force` | No | `$false` | Skip interactive confirmation prompts |
+- **`RepositoryName`** (required) — GitHub repo name
+- **`Type`** — `actions` for a deployment environment, `codingAgent` for Copilot coding agent
+- **`Environment`** — GitHub environment name (required when `Type` is `actions`; e.g. `test`, `staging`, `prod`)
+- **`GitHubOrganization`** — if not the default `PlagueHO`
+- **`SubscriptionId`** — if targeting a specific Azure subscription
+
+For multiple environments or both GitHub Actions and Copilot agent access, plan to run the
+script once per identity required.
 
 ### Step 2 — Run the script
 
-Use `run_in_terminal` to execute the script from the repository root in a PowerShell session that is already authenticated to Azure.
+Use `run_in_terminal` to execute from a PowerShell session already authenticated to Azure.
 
-**Minimal invocation (uses all defaults):**
+**GitHub Actions identity for a single environment:**
 
 ```powershell
-.\.github\skills\azure-github-managed-identity\Update-AzureUserAssignedManagedIdentityForGitHub.ps1 `
-    -RepositoryName 'my-repo'
+.\scripts\Update-AzureUserAssignedManagedIdentityForGitHub.ps1 `
+    -RepositoryName 'my-repo' `
+    -Type 'actions' `
+    -Environment 'test'
 ```
 
-**Full invocation with all parameters:**
+**GitHub Actions identities for multiple environments (run once per environment):**
 
 ```powershell
-.\.github\skills\azure-github-managed-identity\Update-AzureUserAssignedManagedIdentityForGitHub.ps1 `
+foreach ($env in @('test', 'staging', 'prod')) {
+    .\scripts\Update-AzureUserAssignedManagedIdentityForGitHub.ps1 `
+        -RepositoryName 'my-repo' `
+        -Type 'actions' `
+        -Environment $env `
+        -Force
+}
+```
+
+**Copilot coding agent identity:**
+
+```powershell
+.\scripts\Update-AzureUserAssignedManagedIdentityForGitHub.ps1 `
     -RepositoryName 'my-repo' `
+    -Type 'codingAgent'
+```
+
+**Full invocation with all common parameters:**
+
+```powershell
+.\scripts\Update-AzureUserAssignedManagedIdentityForGitHub.ps1 `
+    -RepositoryName 'my-repo' `
+    -Type 'actions' `
+    -Environment 'prod' `
     -GitHubOrganization 'MyOrg' `
     -SubscriptionId '12345678-1234-1234-1234-123456789012' `
     -Location 'East US' `
-    -Environment @('test', 'staging', 'prod') `
-    -IncludeCopilot:$true `
     -Force
 ```
 
-**With `-WhatIf` to preview changes without making them:**
+**Custom RBAC roles (overrides defaults):**
 
 ```powershell
-.\.github\skills\azure-github-managed-identity\Update-AzureUserAssignedManagedIdentityForGitHub.ps1 `
+.\scripts\Update-AzureUserAssignedManagedIdentityForGitHub.ps1 `
     -RepositoryName 'my-repo' `
+    -Type 'actions' `
+    -Environment 'prod' `
+    -RbacRoles @('Contributor')
+```
+
+**Remove roles no longer required:**
+
+```powershell
+.\scripts\Update-AzureUserAssignedManagedIdentityForGitHub.ps1 `
+    -RepositoryName 'my-repo' `
+    -Type 'actions' `
+    -Environment 'prod' `
+    -RbacRoles @('Contributor') `
+    -RemoveUnlistedRoles
+```
+
+**Preview changes without applying (`-WhatIf`):**
+
+```powershell
+.\scripts\Update-AzureUserAssignedManagedIdentityForGitHub.ps1 `
+    -RepositoryName 'my-repo' `
+    -Type 'actions' `
+    -Environment 'test' `
     -WhatIf
 ```
 
 ### Step 3 — Configure GitHub repository secrets and environments
 
-After the script completes, it will print the values needed for GitHub. Configure the following in the repository settings (`Settings → Secrets and variables → Actions`):
+After each script run, it outputs the values needed for GitHub.
 
-**Repository-level secrets (shared across all environments):**
-
-| Secret | Value |
-|--------|-------|
-| `AZURE_TENANT_ID` | The Azure AD tenant ID (printed by the script) |
-| `AZURE_SUBSCRIPTION_ID` | The Azure subscription ID (printed by the script) |
-
-**Per-environment secrets** (set under `Settings → Environments → <env name> → Secrets`):
+**Repository-level secrets** (`Settings → Secrets and variables → Actions`):
 
 | Secret | Value |
 |--------|-------|
-| `AZURE_CLIENT_ID` | The `clientId` of the managed identity for that environment (printed by the script) |
+| `AZURE_TENANT_ID` | Azure AD tenant ID (printed by script) |
+| `AZURE_SUBSCRIPTION_ID` | Azure subscription ID (printed by script) |
 
-For the Copilot coding agent environment (`copilot`), set `AZURE_CLIENT_ID` under the `copilot` environment in GitHub repository settings.
+**Per-environment secret** (`Settings → Environments → <env name> → Secrets`):
+
+| Secret | Value |
+|--------|-------|
+| `AZURE_CLIENT_ID` | `clientId` of the managed identity for that environment (printed by script) |
+
+For the Copilot coding agent, create a GitHub environment named `copilot` and set
+`AZURE_CLIENT_ID` under it.
 
 ### Step 4 — Use the managed identity in GitHub Actions
-
-Add the following to any GitHub Actions workflow YAML that needs Azure access:
 
 ```yaml
 permissions:
@@ -145,31 +222,50 @@ jobs:
 
 For Copilot coding agent workflows, use `environment: copilot`.
 
-## Resource naming conventions
-
-The script uses the following naming pattern for created resources:
-
-| Resource | Name pattern |
-|----------|-------------|
-| Resource group | `rg-github-<RepositoryName>-mi` |
-| GitHub Actions identity | `mi-github-actions-<environment>-environment` |
-| Copilot coding agent identity | `mi-copilot-coding-agent` |
-| Federated credential | `<GitHubOrganization>-<RepositoryName>-<environment>-env` |
-
 ## Idempotency
 
-The script is **idempotent** — running it multiple times against the same repository is safe. It will skip creation of any resource that already exists and only create what is missing.
+Running the script multiple times against the same repository is **safe**. Each resource
+(resource group, UAMI, federated credential, role assignment) is checked before creation.
+If it already exists, it is skipped and its current details are included in the output.
+Re-running is the standard approach to update a subset of environments or verify state.
+
+## RBAC role management
+
+- Default roles: `Contributor` and `User Access Administrator`.
+- Pass `-RbacRoles` to specify a different set of roles — this **replaces** the defaults entirely
+  for that invocation.
+- By default, roles already assigned to the identity but **absent from `-RbacRoles`** are
+  **left intact**.
+- Pass `-RemoveUnlistedRoles` to also **remove** any subscription-scope role assignments for the
+  identity that are not listed in `-RbacRoles`.
+- `User Access Administrator` is **always** assigned with a condition preventing the identity from
+  granting `Owner`, `User Access Administrator`, or `Role Based Access Control Administrator` to
+  any principal, regardless of whether the role list was customised.
 
 ## Edge cases and when to pause
 
-- **`RepositoryName` not provided** — this is the only mandatory parameter. If the user has not supplied it, ask before running the script.
-- **Multiple environments requested** — confirm the list of environment names with the user before proceeding, as each environment creates a separate managed identity and role assignments.
-- **Non-default `SubscriptionId`** — if the user provides a subscription ID that differs from the current Azure context, confirm which subscription to use before running.
-- **`-Force` flag** — do not pass `-Force` unless the user explicitly requests skipping confirmation prompts; without it the script will prompt for each resource before creating it.
-- **Role assignment failures** — the script retries up to 3 times. If all retries fail (e.g. due to insufficient permissions), stop, surface the error to the user, and ask them to verify their Azure permissions before retrying.
+- **`RepositoryName` not provided** — only mandatory parameter; ask before running.
+- **`Type` not specified** — ask whether the identity is for GitHub Actions (`actions`) or Copilot
+  coding agent (`codingAgent`).
+- **`Environment` not specified for `actions` type** — ask for the environment name; each
+  environment requires a separate script execution.
+- **Multiple environments** — confirm the list before running; one execution is needed per
+  environment.
+- **Non-default `SubscriptionId`** — confirm which subscription to use if it differs from the
+  current Azure context.
+- **`-Force` flag** — do not pass unless the user explicitly requests skipping prompts; without
+  it the script confirms each resource creation interactively.
+- **`-RemoveUnlistedRoles`** — confirm with the user before using; roles assigned outside this
+  script could be intentional.
+- **Role assignment failures** — the script retries up to 3 times. If all retries fail, surface
+  the error and ask the user to verify Azure permissions before retrying.
 
 ## Security notes
 
-- No static credentials (client secrets) are created. All authentication uses short-lived OIDC tokens issued by GitHub at runtime.
-- The `User Access Administrator` role is granted with a condition expression that prevents the managed identity from assigning `Owner`, `User Access Administrator`, or `Role Based Access Control Administrator` roles to any principal, following the principle of least privilege.
-- Output from the script may contain tenant and subscription IDs. These are non-secret identifiers but should not be committed to public repositories — use GitHub secrets for storage.
+- No static credentials are created. All authentication uses short-lived OIDC tokens issued by
+  GitHub at runtime.
+- `User Access Administrator` is granted with a condition expression that prevents assignment of
+  `Owner`, `User Access Administrator`, or `Role Based Access Control Administrator`, following
+  the principle of least privilege.
+- Script output includes tenant and subscription IDs. These are non-secret identifiers but should
+  not be committed to public repositories — store them as GitHub secrets.
