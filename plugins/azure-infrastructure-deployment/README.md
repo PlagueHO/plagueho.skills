@@ -1,4 +1,4 @@
-# Azure Infrastructure Plugin
+# Azure Infrastructure Deployment Plugin
 
 Infrastructure management plugin that provisions Azure identities for GitHub and keeps Azure Verified Module references up to date.
 
@@ -6,7 +6,7 @@ Infrastructure management plugin that provisions Azure identities for GitHub and
 
 ```bash
 # Using Copilot CLI
-copilot plugin install azure-infrastructure@plagueho-os
+copilot plugin install azure-infrastructure-deployment@plagueho-os
 ```
 
 ## What's Included

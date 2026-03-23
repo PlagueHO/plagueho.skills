@@ -1,7 +1,7 @@
 {
-  "name": "azure-infrastructure",
+  "name": "azure-infrastructure-deployment",
   "description": "Provision Azure identities and manage Azure Verified Module versions.",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "author": {
     "name": "Daniel Scott-Raynsford",
     "url": "https://github.com/PlagueHO"
@@ -17,7 +17,7 @@
     "avm"
   ],
   "skills": [
-    "./skills/azure-github-managed-identity",
+    "./skills/provision-github-azure-federated-identity",
     "./skills/update-avm-modules"
   ]
 }

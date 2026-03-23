@@ -14,14 +14,14 @@
     {
       "name": "azure-architecture-center",
       "source": "azure-architecture-center",
-      "description": "Skills for Azure Architecture Center documentation maintainers: review multitenant guidance and docs for currency, accuracy, and completeness.",
+      "description": "Skills for Azure Architecture Center documentation maintainers: discover needed updates and review multitenant docs for currency, accuracy, and completeness.",
       "version": "2.0.0"
     },
     {
-      "name": "azure-infrastructure",
-      "source": "azure-infrastructure",
+      "name": "azure-infrastructure-deployment",
+      "source": "azure-infrastructure-deployment",
       "description": "Provision Azure identities and manage Azure Verified Module versions.",
-      "version": "2.0.0"
+      "version": "2.1.0"
     },
     {
       "name": "content-and-learning",

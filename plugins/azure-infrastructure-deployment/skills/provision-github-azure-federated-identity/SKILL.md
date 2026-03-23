@@ -1,5 +1,5 @@
 ---
-name: azure-github-managed-identity
+name: provision-github-azure-federated-identity
 
 description: "**WORKFLOW SKILL** — Provision Azure User Assigned Managed Identity with OIDC federation and RBAC for passwordless GitHub authentication. WHEN: \"set up Azure access for GitHub Actions\", \"configure managed identity for GitHub\", \"enable passwordless Azure authentication in CI/CD\", \"configure OIDC federation GitHub Azure\", \"Copilot coding agent Azure identity\". INVOKES: run_in_terminal for PowerShell. FOR SINGLE OPERATIONS: Use az CLI for simple role assignments."
 
@@ -82,7 +82,7 @@ The PowerShell script is at:
 | Resource | Default name |
 |----------|-------------|
 | Resource group | `rg-github-<RepositoryName>-mi` |
-| UAMI — `actions` type | `mi-actions-<RepositoryName>-<Environment>` |
+| UAMI — `actions` type | `mi-actions-<RepositoryName>-<Environment>-env` |
 | UAMI — `codingAgent` type | `mi-coding-agent-<RepositoryName>` |
 | Federated credential — `actions` | `<GitHubOrganization>-<RepositoryName>-<Environment>` |
 | Federated credential — `codingAgent` | `<GitHubOrganization>-<RepositoryName>-copilot` |

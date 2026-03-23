@@ -71,13 +71,13 @@
     <circle class="pip" cx="482" cy="160" r="4"/>
   </g>
 
-  <!-- Slide 3: azure-infrastructure -->
+  <!-- Slide 3: azure-infrastructure-deployment -->
   <g class="card">
     <text class="emoji" x="40" y="70">&#x2601;</text>
-    <text class="title" x="90" y="58">azure-infrastructure</text>
+    <text class="title" x="90" y="58">azure-infrastructure-deployment</text>
     <text class="desc" x="90" y="82">Provision Azure identities and manage Azure Verified Module versions</text>
     <text class="count" x="90" y="106">2 skills: azure-github-managed-identity, update-avm-modules</text>
-    <text class="path" x="90" y="128">plugins/azure-infrastructure/</text>
+    <text class="path" x="90" y="128">plugins/azure-infrastructure-deployment/</text>
     <circle class="pip" cx="342" cy="160" r="4"/>
     <circle class="pip" cx="362" cy="160" r="4"/>
     <circle class="pip-on" cx="382" cy="160" r="4"/>

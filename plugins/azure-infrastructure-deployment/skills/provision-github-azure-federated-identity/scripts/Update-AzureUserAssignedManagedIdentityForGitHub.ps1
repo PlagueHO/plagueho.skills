@@ -49,7 +49,7 @@
 .PARAMETER IdentityName
     Overrides the computed UAMI name.
     Defaults:
-    - actions type     : 'mi-actions-<RepositoryName>-<Environment>'
+    - actions type     : 'mi-actions-<RepositoryName>-<Environment>-env'
     - codingAgent type : 'mi-coding-agent-<RepositoryName>'
 
 .PARAMETER RbacRoles
@@ -615,7 +615,7 @@ process {
             $federatedSubject      = "repo:$GitHubOrganization/$($RepositoryName):environment:copilot"
         } else {
             # Type -eq 'actions'
-            $resolvedIdentityName  = if ($IdentityName) { $IdentityName } else { "mi-actions-$RepositoryName-$Environment" }
+            $resolvedIdentityName  = if ($IdentityName) { $IdentityName } else { "mi-actions-$RepositoryName-$Environment-env" }
             $githubEnvironment     = $Environment
             $federatedCredName     = "$GitHubOrganization-$RepositoryName-$Environment"
             $federatedSubject      = "repo:$GitHubOrganization/$($RepositoryName):environment:$Environment"
