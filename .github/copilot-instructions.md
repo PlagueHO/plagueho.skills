@@ -36,12 +36,23 @@ Agent skills and plugin marketplace for Daniel Scott-Raynsford (PlagueHO). Conta
 
 When adding a skill to any plugin, **must** update all of the following in the same change:
 
-1. **`plugins/<plugin>/plugin.json`** — add the skill entry. 2. **`.github/plugin/marketplace.json`** — bump the plugin's `version` (patch or minor).
-3. **`.claude-plugin/marketplace.json`** — mirror the same version bump.
+1. **`plugins/<plugin>/plugin.json`** — add the skill entry.
+2. **`.github/plugin/marketplace.json`** — bump the plugin's `version` (patch or minor); update `name`, `source`, and `description` if changed.
+3. **`.claude-plugin/marketplace.json`** — must be an **exact copy** of `.github/plugin/marketplace.json`. Every field (`name`, `source`, `description`, `version`) must match exactly. The CI `diff` step will fail if they diverge.
 4. **`README.md`** (root) — update the plugin row if description or skill count changes.
 5. **`docs/images/overview.svg`** — update the slide's `<text class="count">` and skill name list.
 
 Omitting these updates leaves the marketplace index, README, and overview out of sync.
+
+## Marketplace Sync Rule
+
+`.github/plugin/marketplace.json` is the **source of truth**. `.claude-plugin/marketplace.json` must always be an exact mirror. After any edit to either file, verify they are identical:
+
+```bash
+diff .github/plugin/marketplace.json .claude-plugin/marketplace.json
+```
+
+A non-empty diff will fail the CI `Verify marketplace.json and .claude-plugin/marketplace.json are in sync` step.
  Documentation
 
 - All scripts should include a header comment explaining purpose, parameters, and usage
