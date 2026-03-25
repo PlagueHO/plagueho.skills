@@ -9,7 +9,7 @@
     "lint:md:ci": "markdownlint-cli2"
   },
   "devDependencies": {
-    "markdownlint-cli2": "^0.21.0"
+    "markdownlint-cli2": "^0.22.0"
   },
   "description": "Agent plugin marketplace for Daniel Scott-Raynsford (PlagueHO)",
   "repository": {
