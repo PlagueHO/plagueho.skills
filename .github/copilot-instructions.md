@@ -29,7 +29,7 @@ Agent skills and plugin marketplace for Daniel Scott-Raynsford (PlagueHO). Conta
 ## Plugin Structure
 
 - Each plugin has a `plugin.json` at its root
-- Plugin `repository` field must point to `https://github.com/PlagueHO/skills`
+- Plugin `repository` field must point to `https://github.com/PlagueHO/plagueho.skills`
 - After adding/modifying plugins, run `scripts/Update-MarketplaceFromPlugins.ps1`
 
 ## Adding a New Skill — Required Updates

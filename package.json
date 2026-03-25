@@ -14,7 +14,7 @@
   "description": "Agent plugin marketplace for Daniel Scott-Raynsford (PlagueHO)",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PlagueHO/skills.git"
+    "url": "git+https://github.com/PlagueHO/plagueho.skills.git"
   },
   "author": "Daniel Scott-Raynsford",
   "license": "MIT"

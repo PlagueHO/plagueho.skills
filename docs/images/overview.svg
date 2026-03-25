@@ -43,7 +43,7 @@
     <text class="emoji" x="40" y="70">&#x1F680;</text>
     <text class="title" x="90" y="58">Quick Start</text>
     <text class="desc" x="90" y="82">Add to VS Code settings.json to install plugins via Copilot Chat:</text>
-    <text class="path" x="90" y="108">"chat.plugins.marketplaces": ["PlagueHO/skills"]</text>
+    <text class="path" x="90" y="108">"chat.plugins.marketplaces": ["PlagueHO/plagueho.skills"]</text>
     <text class="count" x="90" y="130">8 plugins &#x2022; 21 skills &#x2022; ready to install</text>
     <circle class="pip-on" cx="342" cy="160" r="4"/>
     <circle class="pip" cx="362" cy="160" r="4"/>

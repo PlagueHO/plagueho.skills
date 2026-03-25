@@ -37,7 +37,7 @@ Add the marketplace to your VS Code `settings.json`:
 // settings.json
 {
   "chat.plugins.enabled": true,
-  "chat.plugins.marketplaces": ["PlagueHO/skills"]
+  "chat.plugins.marketplaces": ["PlagueHO/plagueho.skills"]
 }
 ```
 
@@ -50,7 +50,7 @@ filter in Extensions to browse and install plugins from the marketplace.
 2. Add the marketplace:
 
    ```text
-   /plugin marketplace add PlagueHO/skills
+   /plugin marketplace add PlagueHO/plagueho.skills
    ```
 
 3. Install a plugin:
@@ -69,7 +69,7 @@ filter in Extensions to browse and install plugins from the marketplace.
 ## Repository Structure
 
 ```text
-PlagueHO/skills/
+PlagueHO/plagueho.skills/
 ├── plugins/                    # Agent plugin bundles (canonical layout)
 │   ├── <plugin-name>/
 │   │   ├── plugin.json         # Plugin definition (source of truth)

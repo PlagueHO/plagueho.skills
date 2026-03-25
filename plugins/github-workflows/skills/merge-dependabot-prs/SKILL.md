@@ -1,7 +1,7 @@
 ---
 name: merge-dependabot-prs
 description: "**WORKFLOW SKILL** — Approve and squash-merge all open Dependabot PRs in parallel, requesting rebase for conflicts and triaging failures. WHEN: \"merge dependabot PRs\", \"auto-merge dependabot\", \"process dependabot updates\", \"bulk merge dependabot\", \"dependabot batch merge\", \"dependabot sweep\", \"approve dependabot PRs\". INVOKES: runSubagent for parallel processing, GitHub MCP tools. FOR SINGLE OPERATIONS: use GitHub MCP directly."
-argument-hint: 'Optionally provide owner/repo (e.g., PlagueHO/skills). Defaults to the current repository.'
+argument-hint: 'Optionally provide owner/repo (e.g., PlagueHO/plagueho.skills). Defaults to the current repository.'
 ---
 
 # Merge Dependabot PRs

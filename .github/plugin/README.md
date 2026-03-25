@@ -1,7 +1,7 @@
 # Plugin Marketplace
 
 This directory contains the VS Code agent plugin marketplace index for
-**PlagueHO/skills**. Plugin skills are defined under
+**PlagueHO/plagueho.skills**. Plugin skills are defined under
 [`../../plugins/`](../../plugins/) following the
 [github/awesome-copilot](https://github.com/github/awesome-copilot) layout.
 
@@ -12,7 +12,7 @@ Add the marketplace to your VS Code `settings.json`:
 ```json
 "chat.plugins.enabled": true,
 "chat.plugins.marketplaces": [
-    "PlagueHO/skills"
+    "PlagueHO/plagueho.skills"
 ]
 ```
 
