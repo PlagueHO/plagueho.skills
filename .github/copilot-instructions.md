@@ -1,21 +1,14 @@
 # GitHub Copilot Instructions
 
-These instructions apply to all GitHub Copilot interactions in this repository.
-
 ## Repository Purpose
 
-This is the agent skills and plugin marketplace repository for Daniel
-Scott-Raynsford (PlagueHO). It contains GitHub Copilot agent plugin bundles
-with skills, scripts, and reference data distributed via the VS Code
-plugin marketplace.
+Agent skills and plugin marketplace for Daniel Scott-Raynsford (PlagueHO). Contains Copilot plugin bundles with skills, scripts, and reference data ## General Coding Principles
 
-## General Coding Principles
-
-- Write clean, readable, and maintainable code
-- Follow the principle of least privilege for security
+- Write clean, readable, maintainable code
+- Apply least privilege for security
 - Prefer explicit over implicit
-- Write self-documenting code with meaningful names
-- Keep functions small and focused on a single responsibility
+- Use self-documenting names
+- Keep functions small; single responsibility
 - Handle errors explicitly and gracefully
 
 ## Code Style
@@ -39,7 +32,17 @@ plugin marketplace.
 - Plugin `repository` field must point to `https://github.com/PlagueHO/skills`
 - After adding/modifying plugins, run `scripts/Update-MarketplaceFromPlugins.ps1`
 
-## Documentation
+## Adding a New Skill — Required Updates
+
+When adding a skill to any plugin, **must** update all of the following in the same change:
+
+1. **`plugins/<plugin>/plugin.json`** — add the skill entry. 2. **`.github/plugin/marketplace.json`** — bump the plugin's `version` (patch or minor).
+3. **`.claude-plugin/marketplace.json`** — mirror the same version bump.
+4. **`README.md`** (root) — update the plugin row if description or skill count changes.
+5. **`docs/images/overview.svg`** — update the slide's `<text class="count">` and skill name list.
+
+Omitting these updates leaves the marketplace index, README, and overview out of sync.
+ Documentation
 
 - All scripts should include a header comment explaining purpose, parameters, and usage
 - Plugin READMEs should list all included skills with descriptions

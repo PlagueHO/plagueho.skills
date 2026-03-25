@@ -6,7 +6,7 @@
     </linearGradient>
   </defs>
   <style>
-    .card { opacity: 0; animation: cycle 40s infinite; }
+    .card { opacity: 0; animation: cycle 45s infinite; }
     .card:nth-child(1) { animation-delay: 0s; }
     .card:nth-child(2) { animation-delay: 5s; }
     .card:nth-child(3) { animation-delay: 10s; }
@@ -15,6 +15,7 @@
     .card:nth-child(6) { animation-delay: 25s; }
     .card:nth-child(7) { animation-delay: 30s; }
     .card:nth-child(8) { animation-delay: 35s; }
+    .card:nth-child(9) { animation-delay: 40s; }
     @keyframes cycle {
       0%    { opacity: 0; }
       1.5%  { opacity: 1; }
@@ -43,7 +44,7 @@
     <text class="title" x="90" y="58">Quick Start</text>
     <text class="desc" x="90" y="82">Add to VS Code settings.json to install plugins via Copilot Chat:</text>
     <text class="path" x="90" y="108">"chat.plugins.marketplaces": ["PlagueHO/skills"]</text>
-    <text class="count" x="90" y="130">7 plugins &#x2022; 18+ skills &#x2022; ready to install</text>
+    <text class="count" x="90" y="130">8 plugins &#x2022; 21 skills &#x2022; ready to install</text>
     <circle class="pip-on" cx="342" cy="160" r="4"/>
     <circle class="pip" cx="362" cy="160" r="4"/>
     <circle class="pip" cx="382" cy="160" r="4"/>
@@ -52,6 +53,7 @@
     <circle class="pip" cx="442" cy="160" r="4"/>
     <circle class="pip" cx="462" cy="160" r="4"/>
     <circle class="pip" cx="482" cy="160" r="4"/>
+    <circle class="pip" cx="502" cy="160" r="4"/>
   </g>
 
   <!-- Slide 2: azure-architecture-center -->
@@ -69,6 +71,7 @@
     <circle class="pip" cx="442" cy="160" r="4"/>
     <circle class="pip" cx="462" cy="160" r="4"/>
     <circle class="pip" cx="482" cy="160" r="4"/>
+    <circle class="pip" cx="502" cy="160" r="4"/>
   </g>
 
   <!-- Slide 3: azure-infrastructure-deployment -->
@@ -86,6 +89,7 @@
     <circle class="pip" cx="442" cy="160" r="4"/>
     <circle class="pip" cx="462" cy="160" r="4"/>
     <circle class="pip" cx="482" cy="160" r="4"/>
+    <circle class="pip" cx="502" cy="160" r="4"/>
   </g>
 
   <!-- Slide 4: content-and-learning -->
@@ -103,6 +107,7 @@
     <circle class="pip" cx="442" cy="160" r="4"/>
     <circle class="pip" cx="462" cy="160" r="4"/>
     <circle class="pip" cx="482" cy="160" r="4"/>
+    <circle class="pip" cx="502" cy="160" r="4"/>
   </g>
 
   <!-- Slide 5: developer-environment -->
@@ -120,6 +125,7 @@
     <circle class="pip" cx="442" cy="160" r="4"/>
     <circle class="pip" cx="462" cy="160" r="4"/>
     <circle class="pip" cx="482" cy="160" r="4"/>
+    <circle class="pip" cx="502" cy="160" r="4"/>
   </g>
 
   <!-- Slide 6: dotnet-modernization -->
@@ -137,9 +143,28 @@
     <circle class="pip-on" cx="442" cy="160" r="4"/>
     <circle class="pip" cx="462" cy="160" r="4"/>
     <circle class="pip" cx="482" cy="160" r="4"/>
+    <circle class="pip" cx="502" cy="160" r="4"/>
   </g>
 
-  <!-- Slide 7: skill-lifecycle -->
+  <!-- Slide 7: github-workflows -->
+  <g class="card">
+    <text class="emoji" x="40" y="70">&#x1F500;</text>
+    <text class="title" x="90" y="58">github-workflows</text>
+    <text class="desc" x="90" y="82">Evaluate PR review comments, merge Dependabot PRs in parallel, and optimize Copilot resources</text>
+    <text class="count" x="90" y="106">3 skills: evaluate-pr-review-comments, merge-dependabot-prs, optimize-copilot-resources</text>
+    <text class="path" x="90" y="128">plugins/github-workflows/</text>
+    <circle class="pip" cx="342" cy="160" r="4"/>
+    <circle class="pip" cx="362" cy="160" r="4"/>
+    <circle class="pip" cx="382" cy="160" r="4"/>
+    <circle class="pip" cx="402" cy="160" r="4"/>
+    <circle class="pip" cx="422" cy="160" r="4"/>
+    <circle class="pip" cx="442" cy="160" r="4"/>
+    <circle class="pip-on" cx="462" cy="160" r="4"/>
+    <circle class="pip" cx="482" cy="160" r="4"/>
+    <circle class="pip" cx="502" cy="160" r="4"/>
+  </g>
+
+  <!-- Slide 8: skill-lifecycle -->
   <g class="card">
     <text class="emoji" x="40" y="70">&#x2699;</text>
     <text class="title" x="90" y="58">skill-lifecycle</text>
@@ -152,11 +177,12 @@
     <circle class="pip" cx="402" cy="160" r="4"/>
     <circle class="pip" cx="422" cy="160" r="4"/>
     <circle class="pip" cx="442" cy="160" r="4"/>
-    <circle class="pip-on" cx="462" cy="160" r="4"/>
-    <circle class="pip" cx="482" cy="160" r="4"/>
+    <circle class="pip" cx="462" cy="160" r="4"/>
+    <circle class="pip-on" cx="482" cy="160" r="4"/>
+    <circle class="pip" cx="502" cy="160" r="4"/>
   </g>
 
-  <!-- Slide 8: suggest-awesome-github-copilot -->
+  <!-- Slide 9: suggest-awesome-github-copilot -->
   <g class="card">
     <text class="emoji" x="40" y="70">&#x2B50;</text>
     <text class="title" x="90" y="58">suggest-awesome-github-copilot</text>
@@ -170,7 +196,8 @@
     <circle class="pip" cx="422" cy="160" r="4"/>
     <circle class="pip" cx="442" cy="160" r="4"/>
     <circle class="pip" cx="462" cy="160" r="4"/>
-    <circle class="pip-on" cx="482" cy="160" r="4"/>
+    <circle class="pip" cx="482" cy="160" r="4"/>
+    <circle class="pip-on" cx="502" cy="160" r="4"/>
   </g>
   </g>
 </svg>

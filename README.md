@@ -23,6 +23,7 @@ Agent Skills standard, see [agentskills.io](https://agentskills.io).
 | [content-and-learning](plugins/content-and-learning/) | Review content for AI readiness and generate Microsoft technology learning pathways. |
 | [developer-environment](plugins/developer-environment/) | Scaffold dotfiles repos and sync VS Code profiles across editions. |
 | [dotnet-modernization](plugins/dotnet-modernization/) | Convert legacy .NET project files to modern SDK-style format. |
+| [github-workflows](plugins/github-workflows/) | Evaluate PR review comments, merge Dependabot PRs in parallel, and optimize Copilot resources. |
 | [skill-lifecycle](plugins/skill-lifecycle/) | Create, convert, and generate agent skills from prompts and pull requests. |
 | [suggest-awesome-github-copilot](plugins/suggest-awesome-github-copilot/) | Discover and install GitHub Copilot assets from the awesome-copilot repository. |
 

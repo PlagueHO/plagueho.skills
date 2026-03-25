@@ -1,7 +1,7 @@
 {
   "name": "github-workflows",
-  "description": "GitHub workflow skills for PR review evaluation and Copilot resource optimization.",
-  "version": "1.0.0",
+  "description": "GitHub workflow skills for PR review evaluation, Dependabot PR management, and Copilot resource optimization.",
+  "version": "1.1.0",
   "author": {
     "name": "Daniel Scott-Raynsford",
     "url": "https://github.com/PlagueHO"
@@ -14,10 +14,13 @@
     "code-review",
     "copilot",
     "optimization",
-    "workflows"
+    "workflows",
+    "dependabot",
+    "auto-merge"
   ],
   "skills": [
     "./skills/evaluate-pr-review-comments",
+    "./skills/merge-dependabot-prs",
     "./skills/optimize-github-copilot-resources"
   ]
 }

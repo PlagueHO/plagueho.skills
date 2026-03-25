@@ -44,8 +44,8 @@
     {
       "name": "github-workflows",
       "source": "github-workflows",
-      "description": "GitHub workflow skills for PR review evaluation and Copilot resource optimization.",
-      "version": "1.0.0"
+      "description": "GitHub workflow skills for PR review evaluation, Dependabot PR management, and Copilot resource optimization.",
+      "version": "1.1.0"
     },
     {
       "name": "skill-lifecycle",

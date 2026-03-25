@@ -1,6 +1,6 @@
 # GitHub Workflows Plugin
 
-GitHub workflow skills for PR review evaluation and Copilot resource optimization.
+GitHub workflow skills for PR review evaluation, Dependabot PR management, and Copilot resource optimization.
 
 ## Installation
 
@@ -16,6 +16,7 @@ copilot plugin install github-workflows@plagueho-os
 | Command | Description |
 |---------|-------------|
 | `/github-workflows:evaluate-pr-review-comments` | Evaluate review comments on a GitHub Pull Request, classifying each by validity, category, impact, and risk, then recommending whether to apply, consider, or skip. |
+| `/github-workflows:merge-dependabot-prs` | Merge all Dependabot PRs in a repository in parallel. Approves and squash merges passing PRs, requests rebase for conflicting PRs, and triages failing builds. |
 | `/github-workflows:optimize-github-copilot-resources` | Optimize GitHub Copilot resources such as prompts, skills, agents, and instructions for minimal token count, clarity, and AI readability. |
 
 ### Agents
