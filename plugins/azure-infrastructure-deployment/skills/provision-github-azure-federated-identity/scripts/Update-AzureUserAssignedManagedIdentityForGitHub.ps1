@@ -315,9 +315,11 @@ begin {
                 $identity = New-AzUserAssignedIdentity -ResourceGroupName $ResourceGroupName -Name $IdentityName -Location $Location
                 Write-Warning "Managed identity '$IdentityName' created"
 
-                # Wait for the identity to propagate in Azure AD
-                Write-Verbose "Waiting for identity to propagate in Azure AD..."
-                Start-Sleep -Seconds 10
+                # Wait for the identity's service principal to propagate in Azure AD.
+                # Replication can take 15-30+ seconds; insufficient delay causes RBAC
+                # assignment to fail with PrincipalNotFound even with retries.
+                Write-Verbose "Waiting 30 seconds for identity to propagate in Azure AD..."
+                Start-Sleep -Seconds 30
             }
             else {
                 throw "Managed identity creation cancelled by user"
@@ -457,8 +459,8 @@ begin {
 
         Write-Verbose "Configuring RBAC roles for '$IdentityName'"
         $subscriptionScope = "/subscriptions/$SubscriptionId"
-        $maxRetries = 3
-        $retryDelaySecs = 5
+        $maxRetries = 5
+        $retryDelaySecs = 15
 
         # Pre-fetch prohibited role IDs needed for the UAA condition
         $ownerRoleId       = (Get-AzRoleDefinition -Name 'Owner').Id
@@ -512,8 +514,10 @@ begin {
                         catch {
                             $retryCount++
                             if ($retryCount -lt $maxRetries) {
-                                Write-Verbose "Assignment failed (attempt $retryCount/$maxRetries). Retrying in $retryDelaySecs seconds..."
-                                Start-Sleep -Seconds $retryDelaySecs
+                                # Exponential backoff: 15s, 30s, 60s, 120s
+                                $delay = $retryDelaySecs * [math]::Pow(2, $retryCount - 1)
+                                Write-Verbose "Assignment failed (attempt $retryCount/$maxRetries). Retrying in $delay seconds..."
+                                Start-Sleep -Seconds $delay
                             }
                             else {
                                 Write-Warning "Failed to assign '$roleName' after $maxRetries attempts: $_"
