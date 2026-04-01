@@ -58,11 +58,19 @@ If a resource already exists, the script skips creation and outputs the existing
 
 ## Script
 
-The PowerShell script is at (in relation to this SKILL.md):
-`./scripts/Update-AzureUserAssignedManagedIdentityForGitHub.ps1`
+The PowerShell script is bundled inside this skill's `scripts/` subdirectory — it is **not** in
+the active workspace. Before running, resolve the absolute path as follows:
+
+1. Note the absolute path of this SKILL.md file (available from the `filePath` attribute of
+   the skill attachment in context)
+2. Replace `SKILL.md` with `scripts/Update-AzureUserAssignedManagedIdentityForGitHub.ps1` to
+   get the full script path
+3. Confirm the file exists by calling `list_dir` on the skill's `scripts/` subfolder
+
+Always use the full absolute path when invoking the script via `#runInTerminal`.
 
 > [!IMPORTANT]
-> Don't search for the script in any other location.
+> Don't search for the script in any other location. Do not create the script if you can't find it — 🛑 and report the issue instead.
 
 ## Script parameters
 
@@ -109,7 +117,7 @@ script once per identity required.
 
 ### Step 2 — Run the script
 
-Use `run_in_terminal` to execute from a PowerShell session already authenticated to Azure.
+Use `#runInTerminal` to execute from a PowerShell session already authenticated to Azure.
 
 **GitHub Actions identity for a single environment:**
 
