@@ -58,8 +58,11 @@ If a resource already exists, the script skips creation and outputs the existing
 
 ## Script
 
-The PowerShell script is at:
+The PowerShell script is at (in relation to this SKILL.md):
 `./scripts/Update-AzureUserAssignedManagedIdentityForGitHub.ps1`
+
+> [!IMPORTANT]
+> Don't search for the script in any other location.
 
 ## Script parameters
 
