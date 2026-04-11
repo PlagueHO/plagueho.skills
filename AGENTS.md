@@ -3,6 +3,8 @@
 Agent skills and plugin marketplace for Daniel Scott-Raynsford (PlagueHO).
 Contains Copilot plugin bundles (skills, scripts, references) published via
 `github.com/PlagueHO/plagueho.skills`.
+For code style, naming, and authoring patterns see
+`.github/copilot-instructions.md`.
 
 ## Layout
 
@@ -40,6 +42,12 @@ Always run before submitting changes:
 ```bash
 pnpm install          # Install dependencies (required before lint)
 pnpm lint:md          # Lint all Markdown files (must pass)
+```
+
+Single-file lint (faster agent loop):
+
+```bash
+npx markdownlint-cli2 path/to/file.md
 ```
 
 Validate JSON schemas:
@@ -108,3 +116,17 @@ All checks must pass before merging.
 | `plugin.json` repository field | Always `"https://github.com/PlagueHO/plagueho.skills"` |
 | SKILL.md body length | Keep under 500 lines; move detail to `references/` files |
 | Script headers | Include comment block: purpose, parameters, usage |
+
+## Dos and Don'ts
+
+- **Do** run `pnpm lint:md` before every commit
+- **Do** update all 7 checklist items in a single commit when adding a skill
+- **Don't** edit `marketplace.json` by hand — use the regeneration scripts
+- **Don't** push to `main` without passing all CI checks
+- Edit files freely; ask before `git push`, deleting files, or adding dependencies
+- When stuck, propose a plan — do not push large speculative changes
+
+## Reference Examples
+
+- **Well-structured skill**: `plugins/azure-infrastructure-deployment/skills/update-avm-modules/SKILL.md`
+- **Trigger tests**: `tests/update-avm-modules/trigger_tests.yaml`

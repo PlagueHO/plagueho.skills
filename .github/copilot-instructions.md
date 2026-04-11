@@ -7,6 +7,21 @@ Contains Copilot plugin bundles with skills, scripts, and reference data.
 See `AGENTS.md` for repository layout, build commands, and the atomic checklist
 required when adding a new skill.
 
+## Security
+
+- Never commit secrets, passwords, API keys, or tokens
+- Validate all inputs in scripts, especially when processing external data
+- Apply least-privilege access in any generated infrastructure code
+
+## Naming Conventions
+
+| Element | Convention | Example |
+|---------|-----------|---------|
+| Plugin names | kebab-case | `azure-infrastructure-deployment` |
+| Skill names | kebab-case, matches directory | `update-avm-modules` |
+| Script files | kebab-case, `.ps1` + `.sh` pairs | `update-marketplace-from-plugins.sh` |
+| Frontmatter `name` | lowercase, hyphens, 1–64 chars | `scaffold-repo-ai-guidance` |
+
 ## Skill Authoring — SKILL.md
 
 ### Frontmatter
@@ -90,15 +105,6 @@ Required fields: `name`, `description`, `version`.
 - `repository` must always be `"https://github.com/PlagueHO/plagueho.skills"`
 - Skills listed as relative paths: `"./skills/<skill-name>"`
 
-## Marketplace Sync
-
-`.github/plugin/marketplace.json` is the source of truth.
-`.claude-plugin/marketplace.json` must be an **exact copy** — every field
-(`name`, `source`, `description`, `version`) identical. The CI `diff` step fails on any divergence.
-
-When a skill is added or modified, bump the plugin `version` (patch or minor)
-in both marketplace files and ensure all 7 files in the atomic checklist (see `AGENTS.md`) are updated in the same change.
-
 ## Test Files — trigger_tests.yaml
 
 ```yaml
@@ -124,18 +130,3 @@ Governed by `.markdownlint.json`. Key active rules:
 - Emphasis: `*italic*` and `**bold**` (not underscores)
 - Do not hard-wrap lines (effective limit is 400 chars)
 - No trailing whitespace; newline at end of every file
-
-## Code Style
-
-| Concern | Rule |
-|---------|------|
-| YAML/JSON indentation | 2 spaces |
-| PowerShell/Python indentation | 4 spaces |
-| Script filenames | kebab-case; always provide `.ps1` + `.sh` variants |
-| Script headers | Comment block: purpose, parameters, usage |
-
-## Security
-
-- Never commit secrets, passwords, API keys, or tokens
-- Validate all inputs in scripts, especially when processing external data
-- Apply least-privilege access in any generated infrastructure code
