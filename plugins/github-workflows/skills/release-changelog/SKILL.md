@@ -10,13 +10,13 @@ description: >-
   directly.
 metadata:
   author: PlagueHO
-  version: 1.0.0
+  version: 1.1.0
 ---
 
 # Release Changelog
 
 Automate the release process: review commits since the last version tag, update
-`CHANGELOG.md` following the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
+`CHANGELOG.md` following the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 format, then commit, tag, and push to trigger deployment.
 
 ## Process

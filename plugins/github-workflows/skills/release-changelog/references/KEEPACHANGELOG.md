@@ -1,7 +1,7 @@
 # Keep a Changelog Format Reference
 
-This reference documents the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
-format (version 1.0.0) for use by the `release-changelog` skill.
+This reference documents the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
+format (version 1.1.0) for use by the `release-changelog` skill.
 
 ## What Is a Changelog
 
@@ -30,7 +30,7 @@ The file should be named `CHANGELOG.md` and placed in the repository root.
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ```
 
@@ -93,7 +93,7 @@ Each entry is a bullet point with a concise, human-readable description:
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
@@ -136,10 +136,27 @@ painfully clear. List deprecations in the version where they are introduced,
 then list removals in the version where deprecated features are actually
 removed.
 
-### Inconsistent Date Formats
+### Confusing Dates
 
-Always use ISO 8601 (`YYYY-MM-DD`). This format is unambiguous across all
-regional conventions and sorts naturally.
+Regional date formats vary throughout the world and it is often difficult to
+find a human-friendly date format that feels intuitive to everyone. Dates
+formatted like `2017-07-17` follow the order of largest to smallest units:
+year, month, and day. This format does not overlap in ambiguous ways with other
+regional formats that switch the position of month and day numbers. These
+reasons, and the fact that this date format is an
+[ISO standard](https://www.iso.org/iso-8601-date-and-time-format.html), make it
+the recommended date format for changelog entries.
+
+### Inconsistent Changes
+
+A changelog that only mentions some of the changes can be as dangerous as not
+having a changelog. While many of the changes may not be relevant — for
+instance, removing a single whitespace may not need to be recorded in all
+instances — any important changes should be mentioned in the changelog. By
+inconsistently applying changes, your users may mistakenly think that the
+changelog is the single source of truth. It ought to be. With great power comes
+great responsibility — having a good changelog means having a consistently
+updated changelog.
 
 ### Empty Sections
 
@@ -170,5 +187,5 @@ versions linkable:
 ## Source
 
 This reference is derived from
-[Keep a Changelog v1.0.0](https://keepachangelog.com/en/1.0.0/) by Olivier
+[Keep a Changelog v1.1.0](https://keepachangelog.com/en/1.1.0/) by Olivier
 Lacan, licensed under [Creative Commons](https://creativecommons.org/licenses/by/3.0/).
