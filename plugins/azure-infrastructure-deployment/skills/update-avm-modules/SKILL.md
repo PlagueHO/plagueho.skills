@@ -32,17 +32,47 @@ user-invocable: true
 
 # Update AVM Modules
 
-Update Azure Verified Modules (AVM) in Bicep files to their latest published
-versions. The workflow scans Bicep files for module references, queries the
-Microsoft Container Registry (MCR) for available versions, identifies updates,
-reviews breaking changes, applies updates, and validates the result.
-
 ## Prerequisites
 
 - **Azure CLI** with Bicep extension (`az bicep build` must work).
 - **Network access** to `mcr.microsoft.com` for version queries.
-- **PowerShell 7+** (Windows) or **curl + jq** (macOS/Linux) for the version
-  check scripts.
+- **PowerShell 7+** (Windows) or **curl + jq** (macOS/Linux).
+
+## Script Dependency Policy
+
+All automation steps **MUST** use the bundled scripts in `scripts/`. If any
+required script cannot be found at runtime:
+
+1. **STOP the workflow immediately.**
+2. Report the missing script path to the user.
+3. Do NOT fall back to calling APIs directly, manual extraction, or hand
+   editing.
+
+Required scripts:
+
+| Script (PowerShell) | Script (Shell) | Purpose |
+|---------------------|---------------|---------|
+| `Get-AvmModuleReferences.ps1` | `get-avm-module-references.sh` | Extract AVM references |
+| `Get-AvmLatestVersions.ps1` | `get-avm-latest-versions.sh` | Query MCR for latest versions |
+| `Update-AvmVersions.ps1` | `update-avm-versions.sh` | Apply version updates |
+| `Test-BicepBuild.ps1` | `test-bicep-build.sh` | Validate Bicep files |
+
+## Resolving the Scripts Directory
+
+Derive the scripts path from this SKILL.md file path (provided as the
+attachment source path). The `scripts/` subdirectory is a sibling of this
+file:
+
+```text
+<skill-root>/SKILL.md
+<skill-root>/scripts/Get-AvmLatestVersions.ps1
+```
+
+All steps below reference `$skillPath` (PowerShell) or `$SKILL_PATH` (Shell)
+resolved as:
+
+- PowerShell: `$skillPath = Split-Path -Parent "<absolute-path-to-this-SKILL.md>"`
+- Shell: `SKILL_PATH="$(dirname "<absolute-path-to-this-SKILL.md>")"`
 
 ## Process
 
@@ -56,44 +86,71 @@ Determine which Bicep files to update:
 
 ### Step 2 — Extract Module References
 
-For each target file, extract all AVM module references matching the pattern:
-
-```text
-br/public:avm/res/{service}/{resource}:{version}
-br/public:avm/ptn/{pattern}:{version}
-br/public:avm/utl/{utility}:{version}
-```
-
-Build a list of `{ module, currentVersion, filePath, lineNumber }` entries.
-If no AVM modules are found, inform the user and stop.
-
-### Step 3 — Query Latest Versions
-
-Use the version check script to query MCR for the latest version of each
-unique module. The scripts are in this skill's `scripts/` directory.
+Run `Get-AvmModuleReferences.ps1` / `get-avm-module-references.sh`.
 
 **PowerShell** (Windows):
 
 ```powershell
-& "<skill-path>/scripts/Get-AvmLatestVersions.ps1" -BicepFile "<path>"
+$skillPath = Split-Path -Parent "<absolute-path-to-this-SKILL.md>"
+$script = Join-Path $skillPath "scripts/Get-AvmModuleReferences.ps1"
+if (-not (Test-Path $script)) {
+    Write-Error "FATAL: Script not found: $script — aborting workflow."
+    exit 1
+}
+# Single file
+& $script -BicepFile "<path>"
+# Or entire directory
+& $script -Directory "infra/"
 ```
 
 **Shell** (macOS/Linux):
 
 ```bash
-"<skill-path>/scripts/get-avm-latest-versions.sh" "<path>"
+SKILL_PATH="$(dirname "<absolute-path-to-this-SKILL.md>")"
+SCRIPT="$SKILL_PATH/scripts/get-avm-module-references.sh"
+if [ ! -f "$SCRIPT" ]; then
+    echo "FATAL: Script not found: $SCRIPT — aborting workflow." >&2
+    exit 1
+fi
+# Single file
+"$SCRIPT" --file "<path>"
+# Or entire directory
+"$SCRIPT" --directory "infra/"
 ```
 
-The scripts output a table with columns: `Module`, `Current`, `Latest`, `Status`.
+Outputs JSON with `Module`, `Version`, `FilePath`, `LineNumber` per reference.
+If no AVM modules are found, inform the user and stop.
 
-If the scripts are unavailable, query the MCR API directly:
+### Step 3 — Query Latest Versions
 
-```text
-GET https://mcr.microsoft.com/v2/bicep/{module}/tags/list
+Run `Get-AvmLatestVersions.ps1` / `get-avm-latest-versions.sh`.
+
+**PowerShell** (Windows):
+
+```powershell
+$skillPath = Split-Path -Parent "<absolute-path-to-this-SKILL.md>"
+$script = Join-Path $skillPath "scripts/Get-AvmLatestVersions.ps1"
+if (-not (Test-Path $script)) {
+    Write-Error "FATAL: Script not found: $script — aborting workflow."
+    exit 1
+}
+& $script -BicepFile "<path>"
 ```
 
-Parse the `tags` array and sort by semantic versioning to find the latest
-stable release (exclude pre-release tags containing `-`).
+**Shell** (macOS/Linux):
+
+```bash
+SKILL_PATH="$(dirname "<absolute-path-to-this-SKILL.md>")"
+SCRIPT="$SKILL_PATH/scripts/get-avm-latest-versions.sh"
+if [ ! -f "$SCRIPT" ]; then
+    echo "FATAL: Script not found: $SCRIPT — aborting workflow." >&2
+    exit 1
+fi
+"$SCRIPT" "<path>"
+```
+
+Outputs a human-readable table (`Module`, `Current`, `Latest`, `Status`) and
+a JSON array for machine consumption.
 
 ### Step 4 — Compare and Classify
 
@@ -109,51 +166,118 @@ For each module, classify the update:
 
 ### Step 5 — Review Breaking Changes
 
-For any **major** or **minor** version updates:
+For **major** or **minor** version updates:
 
 1. Fetch the module changelog/README from GitHub:
    `https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/{service}/{resource}`
-2. Check for incompatible parameter changes, removed parameters, renamed
-   parameters, or behavioral changes.
-3. If breaking changes are detected, **PAUSE and present them to the user**
-   before applying. Ask for explicit approval.
+2. Check for incompatible parameter changes, removed/renamed parameters, or
+   behavioral changes.
+3. If breaking changes are detected, **PAUSE and present them to the user**.
+   Ask for explicit approval.
 
-**Breaking Change Policy** — always pause for approval when updates involve:
+**Breaking Change Policy** — pause for approval when updates involve:
 
 - Incompatible parameter changes (renamed, removed, type changed)
 - Security or compliance modifications
-- Behavioral changes that affect deployment outcomes
+- Behavioral changes affecting deployment outcomes
 
 ### Step 6 — Apply Updates
 
-For approved updates, edit each Bicep file to replace the old version with
-the new version in the module reference:
+Run `Update-AvmVersions.ps1` / `update-avm-versions.sh` with a JSON array of
+approved updates:
 
-```bicep
-// Before
-module storageAccount 'br/public:avm/res/storage/storage-account:0.9.0' = {
-
-// After
-module storageAccount 'br/public:avm/res/storage/storage-account:0.14.0' = {
+```json
+[
+  {
+    "Module": "avm/res/storage/storage-account",
+    "OldVersion": "0.9.0",
+    "NewVersion": "0.14.0",
+    "FilePath": "infra/main.bicep"
+  }
+]
 ```
 
-If breaking changes require parameter adjustments, apply those as well.
+**PowerShell** (Windows):
+
+```powershell
+$skillPath = Split-Path -Parent "<absolute-path-to-this-SKILL.md>"
+$script = Join-Path $skillPath "scripts/Update-AvmVersions.ps1"
+if (-not (Test-Path $script)) {
+    Write-Error "FATAL: Script not found: $script — aborting workflow."
+    exit 1
+}
+& $script -Updates '<json-array>'
+# Or from a file:
+& $script -UpdatesFile "updates.json"
+```
+
+**Shell** (macOS/Linux):
+
+```bash
+SKILL_PATH="$(dirname "<absolute-path-to-this-SKILL.md>")"
+SCRIPT="$SKILL_PATH/scripts/update-avm-versions.sh"
+if [ ! -f "$SCRIPT" ]; then
+    echo "FATAL: Script not found: $SCRIPT — aborting workflow." >&2
+    exit 1
+fi
+"$SCRIPT" --file updates.json
+# Or from stdin:
+echo '<json-array>' | "$SCRIPT" --stdin
+```
+
+Outputs JSON results with status per module (`UPDATED`, `SKIPPED`, `FAILED`).
+
+If breaking changes require parameter adjustments beyond the version bump,
+apply those edits after the script completes.
 
 ### Step 7 — Validate
 
-Run Bicep linting to ensure all updated files are valid:
+Run `Test-BicepBuild.ps1` / `test-bicep-build.sh` on all updated files.
+
+**PowerShell** (Windows):
 
 ```powershell
-az bicep build --file <updated-file>
+$skillPath = Split-Path -Parent "<absolute-path-to-this-SKILL.md>"
+$script = Join-Path $skillPath "scripts/Test-BicepBuild.ps1"
+if (-not (Test-Path $script)) {
+    Write-Error "FATAL: Script not found: $script — aborting workflow."
+    exit 1
+}
+# Single file
+& $script -BicepFile "<updated-file>"
+# Multiple specific files
+& $script -Files @("<file1>", "<file2>")
+# Or entire directory
+& $script -Directory "infra/"
 ```
+
+**Shell** (macOS/Linux):
+
+```bash
+SKILL_PATH="$(dirname "<absolute-path-to-this-SKILL.md>")"
+SCRIPT="$SKILL_PATH/scripts/test-bicep-build.sh"
+if [ ! -f "$SCRIPT" ]; then
+    echo "FATAL: Script not found: $SCRIPT — aborting workflow." >&2
+    exit 1
+fi
+# Single file
+"$SCRIPT" --file "<updated-file>"
+# Multiple files
+"$SCRIPT" --files "<file1>" "<file2>"
+# Or entire directory
+"$SCRIPT" --directory "infra/"
+```
+
+Outputs JSON with `FilePath`, `Status`, `Message` per file. Exits with code 1
+if any file fails.
 
 If validation fails:
 
 1. Report the specific error.
 2. Attempt to fix parameter issues caused by the version change.
-3. Re-validate.
-4. If still failing, revert that module to its previous version and mark it
-   as ⚠️ in the results.
+3. Re-validate using `Test-BicepBuild`.
+4. If still failing, revert by running `Update-AvmVersions` with `OldVersion`
+   and `NewVersion` swapped. Mark as ⚠️ in the results.
 
 ### Step 8 — Present Results
 
@@ -172,8 +296,8 @@ Display a summary table:
 - ⚠️ Manual review required — breaking changes need attention
 - ❌ Failed — update could not be applied or validated
 
-After the table, list any files that were modified and remind the user to
-run `az bicep build --file infra/main.bicep` for a final end-to-end validation.
+After the table, list modified files and remind the user to run
+`az bicep build --file infra/main.bicep` for final end-to-end validation.
 
 ## MCR API Reference
 
@@ -215,31 +339,8 @@ https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/{service}/{res
 - **Multiple files referencing same module at different versions**: Update all
   to the same latest version for consistency.
 
-### Step 1 — <Title>
+## Validation Checklist
 
-<!-- Describe the first step. Use imperative form. -->
-
-### Step 2 — <Title>
-
-<!-- Describe the next step. -->
-
-## Examples
-
-<!-- Provide input/output examples where applicable. -->
-
-**Example 1:**
-
-Input: <description>
-Output: <description>
-
-## Additional Edge Cases
-
-<!-- Document edge cases and how to handle them. -->
-
-- <Edge case description and resolution>
-
-## Validation
-
-<!-- How to verify the skill produced a correct result. -->
-
-1. <Verification step>
+1. All bundled scripts were found and executed — no fallback occurred.
+2. Summary table lists every `br/public:avm/` reference in the target file(s).
+3. `Test-BicepBuild` reported zero failures for all updated modules.
