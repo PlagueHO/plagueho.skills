@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PlagueHO Agent Skills</title>
+    <meta
+      name="description"
+      content="Agent plugin marketplace for Daniel Scott-Raynsford — curated skills for GitHub Copilot and coding agents."
+    />
+    <meta property="og:title" content="PlagueHO Agent Skills" />
+    <meta
+      property="og:description"
+      content="Agent plugin marketplace for Daniel Scott-Raynsford — curated skills for GitHub Copilot and coding agents."
+    />
+    <meta property="og:type" content="website" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- Hero -->
+    <header class="hero">
+      <div class="wrapper">
+        <h1 class="hero__title">
+          <span class="hero__gradient">PlagueHO Agent Skills</span>
+        </h1>
+        <p class="hero__subtitle">
+          Curated agent skills and plugin bundles for GitHub Copilot and coding
+          agents by Daniel Scott-Raynsford.
+        </p>
+        <div class="hero__stats" id="stats">
+          <div class="stat">
+            <span class="stat__value" id="stat-plugins">—</span>
+            <span class="stat__label">Plugins</span>
+          </div>
+          <div class="stat">
+            <span class="stat__value" id="stat-skills">—</span>
+            <span class="stat__label">Skills</span>
+          </div>
+          <div class="stat">
+            <span class="stat__value" id="stat-version">—</span>
+            <span class="stat__label">Version</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <hr class="separator" />
+
+    <!-- Install -->
+    <section class="install">
+      <div class="wrapper">
+        <p class="install__heading">Add to VS Code settings.json</p>
+        <code class="install__code"
+          >"chat.plugins.marketplaces":
+          ["PlagueHO/plagueho.skills"]</code
+        >
+      </div>
+    </section>
+
+    <hr class="separator" />
+
+    <!-- Catalog -->
+    <main class="catalog">
+      <div class="wrapper">
+        <h2 class="catalog__heading">Plugin Catalog</h2>
+        <div id="catalog" class="plugin-grid">
+          <div class="loading">
+            <div class="loading__spinner"></div>
+            <p>Loading plugins…</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+      <div class="wrapper">
+        <p>
+          Made with
+          <span aria-label="love" role="img">💜</span> by
+          <a href="https://danielscottraynsford.com"
+            >Daniel Scott-Raynsford</a
+          >
+        </p>
+        <nav class="site-footer__links">
+          <a href="https://github.com/PlagueHO/plagueho.skills">GitHub</a>
+          <a href="https://agentskills.io">Agent Skills Spec</a>
+          <a href="https://github.com/github/awesome-copilot"
+            >Awesome Copilot</a
+          >
+        </nav>
+      </div>
+    </footer>
+
+    <script type="module">
+      const skillIcon = `<svg class="skill-item__icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a.75.75 0 0 1 .75.75v6.5a.75.75 0 0 1-1.5 0v-6.5A.75.75 0 0 1 8 1ZM4.11 3.05a.75.75 0 0 1 1.06 0l.463.464a.75.75 0 0 1-1.061 1.06l-.463-.463a.75.75 0 0 1 0-1.06Zm8.24 0a.75.75 0 0 1 0 1.06l-.463.464a.75.75 0 1 1-1.06-1.061l.462-.463a.75.75 0 0 1 1.061 0ZM8 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-3.5 2a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0Z"/></svg>`;
+
+      async function init() {
+        const catalog = document.getElementById("catalog");
+
+        try {
+          const res = await fetch("data.json");
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+
+          // Stats
+          const totalSkills = data.plugins.reduce(
+            (s, p) => s + p.skills.length,
+            0
+          );
+          document.getElementById("stat-plugins").textContent =
+            data.plugins.length;
+          document.getElementById("stat-skills").textContent = totalSkills;
+          document.getElementById("stat-version").textContent = data.version;
+
+          // Render cards
+          catalog.innerHTML = data.plugins
+            .map(
+              (plugin) => `
+            <article class="plugin-card">
+              <div class="plugin-card__header">
+                <span class="plugin-card__name">${esc(plugin.name)}</span>
+                <span class="plugin-card__version">v${esc(plugin.version)}</span>
+              </div>
+              <p class="plugin-card__desc">${esc(plugin.description)}</p>
+              <ul class="skill-list">
+                ${plugin.skills
+                  .map(
+                    (skill) => `
+                  <li class="skill-item">
+                    ${skillIcon}
+                    <div>
+                      <div class="skill-item__name">${esc(skill.name)}</div>
+                      ${
+                        skill.description
+                          ? `<div class="skill-item__desc">${esc(truncate(skill.description, 120))}</div>`
+                          : ""
+                      }
+                    </div>
+                  </li>`
+                  )
+                  .join("")}
+              </ul>
+              ${
+                plugin.keywords.length
+                  ? `<div class="plugin-card__keywords">${plugin.keywords
+                      .map((k) => `<span class="keyword">${esc(k)}</span>`)
+                      .join("")}</div>`
+                  : ""
+              }
+            </article>`
+            )
+            .join("");
+        } catch (err) {
+          catalog.innerHTML = `<p class="loading">Failed to load plugin data. <a href="https://github.com/PlagueHO/plagueho.skills">Visit the repository</a> instead.</p>`;
+          console.error(err);
+        }
+      }
+
+      function esc(str) {
+        const d = document.createElement("div");
+        d.textContent = str;
+        return d.innerHTML;
+      }
+
+      function truncate(str, max) {
+        return str.length > max ? str.slice(0, max) + "…" : str;
+      }
+
+      init();
+    </script>
+  </body>
+</html>

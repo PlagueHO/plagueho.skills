@@ -62,3 +62,9 @@ jobs:
 
       - name: Verify marketplace.json and .claude-plugin/marketplace.json are in sync
         run: diff .github/plugin/marketplace.json .claude-plugin/marketplace.json
+
+  build-docs:
+    name: Build Docs
+    uses: ./.github/workflows/build-docs.yml
+    permissions:
+      contents: read

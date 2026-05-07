@@ -58,6 +58,9 @@ artifacts/
 node_modules/
 package-lock.json
 
+# Website build output
+website/dist/
+
 # VS Code files
 .vscode/*
 !.vscode/settings.json
