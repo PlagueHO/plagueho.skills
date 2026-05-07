@@ -37,6 +37,10 @@
             <span class="stat__label">Skills</span>
           </div>
           <div class="stat">
+            <span class="stat__value" id="stat-agents">—</span>
+            <span class="stat__label">Agents</span>
+          </div>
+          <div class="stat">
             <span class="stat__value" id="stat-version">—</span>
             <span class="stat__label">Version</span>
           </div>
@@ -49,11 +53,102 @@
     <!-- Install -->
     <section class="install">
       <div class="wrapper">
-        <p class="install__heading">Add to VS Code settings.json</p>
-        <code class="install__code"
-          >"chat.plugins.marketplaces":
-          ["PlagueHO/plagueho.skills"]</code
-        >
+        <h2 class="install__heading">Get Started</h2>
+
+        <!-- VS Code Section -->
+        <h3 class="install__subheading">VS Code / VS Code Insiders</h3>
+        <div class="install__buttons">
+          <a
+            href="vscode://settings/chat.plugins.marketplaces?install-extension=PlagueHO/plagueho.skills"
+            class="install__button install__button--primary"
+          >
+            <svg class="install__button-icon" viewBox="0 0 16 16" fill="currentColor">
+              <path
+                d="M11.214 1.005a.75.75 0 0 1 .07 1.06l-7.5 9a.75.75 0 1 1-1.13-.99l7.5-9a.75.75 0 0 1 1.06-.07Z"
+              />
+            </svg>
+            Open in VS Code
+          </a>
+          <a
+            href="vscode-insiders://settings/chat.plugins.marketplaces?install-extension=PlagueHO/plagueho.skills"
+            class="install__button install__button--secondary"
+          >
+            <svg class="install__button-icon" viewBox="0 0 16 16" fill="currentColor">
+              <path
+                d="M11.214 1.005a.75.75 0 0 1 .07 1.06l-7.5 9a.75.75 0 1 1-1.13-.99l7.5-9a.75.75 0 0 1 1.06-.07Z"
+              />
+            </svg>
+            Open in VS Code Insiders
+          </a>
+        </div>
+
+        <p class="install__subtitle">Or manually add to settings.json:</p>
+        <div class="install__code-block">
+          <code class="install__code"
+            >"chat.plugins.marketplaces": ["PlagueHO/plagueho.skills"]</code
+          >
+          <button
+            class="install__copy"
+            onclick="copyToClipboard('\"chat.plugins.marketplaces\": [\"PlagueHO/plagueho.skills\"]')"
+            title="Copy to clipboard"
+          >
+            <svg viewBox="0 0 16 16" fill="currentColor" width="16" height="16">
+              <path
+                d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v-1a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v1zm5 0v-1H5v1h4z"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Copilot CLI Section -->
+        <h3 class="install__subheading">GitHub Copilot CLI / Claude Code</h3>
+        <p class="install__subtitle">Add the marketplace:</p>
+        <div class="install__code-block">
+          <code class="install__code">/plugin marketplace add PlagueHO/plagueho.skills</code>
+          <button
+            class="install__copy"
+            onclick="copyToClipboard('/plugin marketplace add PlagueHO/plagueho.skills')"
+            title="Copy to clipboard"
+          >
+            <svg viewBox="0 0 16 16" fill="currentColor" width="16" height="16">
+              <path
+                d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v-1a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v1zm5 0v-1H5v1h4z"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <p class="install__subtitle">Then install a plugin:</p>
+        <div class="install__code-block">
+          <code class="install__code">/plugin install <plugin>@plagueho-agent-skills</code>
+          <button
+            class="install__copy"
+            onclick="copyToClipboard('/plugin install <plugin>@plagueho-agent-skills')"
+            title="Copy to clipboard"
+          >
+            <svg viewBox="0 0 16 16" fill="currentColor" width="16" height="16">
+              <path
+                d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v-1a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v1zm5 0v-1H5v1h4z"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <p class="install__subtitle">View available skills:</p>
+        <div class="install__code-block">
+          <code class="install__code">/skills</code>
+          <button
+            class="install__copy"
+            onclick="copyToClipboard('/skills')"
+            title="Copy to clipboard"
+          >
+            <svg viewBox="0 0 16 16" fill="currentColor" width="16" height="16">
+              <path
+                d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v-1a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v1zm5 0v-1H5v1h4z"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
     </section>
 
@@ -95,6 +190,19 @@
     <script type="module">
       const skillIcon = `<svg class="skill-item__icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a.75.75 0 0 1 .75.75v6.5a.75.75 0 0 1-1.5 0v-6.5A.75.75 0 0 1 8 1ZM4.11 3.05a.75.75 0 0 1 1.06 0l.463.464a.75.75 0 0 1-1.061 1.06l-.463-.463a.75.75 0 0 1 0-1.06Zm8.24 0a.75.75 0 0 1 0 1.06l-.463.464a.75.75 0 1 1-1.06-1.061l.462-.463a.75.75 0 0 1 1.061 0ZM8 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-3.5 2a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0Z"/></svg>`;
 
+      function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+          const btn = event.target.closest(".install__copy");
+          const originalTitle = btn.title;
+          btn.title = "Copied!";
+          btn.classList.add("install__copy--copied");
+          setTimeout(() => {
+            btn.title = originalTitle;
+            btn.classList.remove("install__copy--copied");
+          }, 2000);
+        });
+      }
+
       async function init() {
         const catalog = document.getElementById("catalog");
 
@@ -108,9 +216,14 @@
             (s, p) => s + p.skills.length,
             0
           );
+          const totalAgents = data.plugins.reduce(
+            (a, p) => a + (p.agents ? p.agents.length : 0),
+            0
+          );
           document.getElementById("stat-plugins").textContent =
             data.plugins.length;
           document.getElementById("stat-skills").textContent = totalSkills;
+          document.getElementById("stat-agents").textContent = totalAgents;
           document.getElementById("stat-version").textContent = data.version;
 
           // Render cards

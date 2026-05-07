@@ -181,7 +181,75 @@ a:hover {
 .install__heading {
   font-size: 1.1rem;
   color: var(--color-text-accent);
+  margin-bottom: 1.5rem;
+}
+
+.install__subheading {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--color-text);
+}
+
+.install__buttons {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.install__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--border-radius);
+  border: 2px solid transparent;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all var(--transition);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.install__button-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.install__button--primary {
+  background: var(--color-primary);
+  color: var(--color-bg);
+  border-color: var(--color-primary);
+}
+
+.install__button--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--color-primary) 30%, transparent);
+}
+
+.install__button--secondary {
+  background: var(--color-secondary);
+  color: var(--color-bg);
+  border-color: var(--color-secondary);
+}
+
+.install__button--secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--color-secondary) 30%, transparent);
+}
+
+.install__subtitle {
+  font-size: 0.9rem;
+  color: var(--color-text-accent);
   margin-bottom: 0.75rem;
+}
+
+.install__code-block {
+  position: relative;
+  display: inline-block;
 }
 
 .install__code {
@@ -190,11 +258,41 @@ a:hover {
   font-size: 0.9rem;
   background: var(--color-bg-accent);
   color: var(--color-primary);
-  padding: 0.5rem 1.25rem;
+  padding: 0.75rem 2.75rem 0.75rem 1.25rem;
   border-radius: var(--border-radius);
   border: 1px solid var(--color-bg-accent-2);
   user-select: all;
   word-break: break-all;
+}
+
+.install__copy {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2rem;
+  height: 2rem;
+  padding: 0.5rem;
+  background: transparent;
+  border: 1px solid var(--color-bg-accent-2);
+  border-radius: calc(var(--border-radius) - 2px);
+  color: var(--color-text-accent);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+}
+
+.install__copy:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+}
+
+.install__copy--copied {
+  color: var(--color-tertiary);
+  border-color: var(--color-tertiary);
 }
 
 /* ---- Plugin catalog ---- */
@@ -365,5 +463,14 @@ a:hover {
 
   .plugin-grid {
     grid-template-columns: 1fr;
+  }
+
+  .install__buttons {
+    flex-direction: column;
+  }
+
+  .install__button {
+    width: 100%;
+    justify-content: center;
   }
 }

@@ -31,7 +31,12 @@ Agent Skills standard, see [agentskills.io](https://agentskills.io).
 
 ### VS Code / VS Code Insiders
 
-Add the marketplace to your VS Code `settings.json`:
+**Option A: Add marketplace via settings** (recommended)
+
+[![Open in VS Code](https://img.shields.io/static/v1?label=Open&message=VS%20Code&logo=visualstudiocode&logoColor=white&labelColor=007ACC&color=007ACC)](vscode://settings/chat.plugins.marketplaces?install-extension=PlagueHO/plagueho.skills)
+[![Open in VS Code Insiders](https://img.shields.io/static/v1?label=Open&message=VS%20Code%20Insiders&logo=visualstudiocode&logoColor=white&labelColor=6B3B9E&color=6B3B9E)](vscode-insiders://settings/chat.plugins.marketplaces?install-extension=PlagueHO/plagueho.skills)
+
+Or manually add to your VS Code `settings.json`:
 
 ```jsonc
 // settings.json
@@ -41,12 +46,19 @@ Add the marketplace to your VS Code `settings.json`:
 }
 ```
 
+**Option B: Install from command palette**
+
+1. Open the Command Palette (`Ctrl+Shift+P` / `⇧⌘P`)
+2. Run **Chat: Install Plugin From Source**
+3. Enter: `https://github.com/PlagueHO/plagueho.skills`
+
 Once configured, type `/plugins` in Copilot Chat or use the `@agentPlugins`
 filter in Extensions to browse and install plugins from the marketplace.
 
 ### Copilot CLI / Claude Code
 
 1. Launch Copilot CLI or Claude Code
+
 2. Add the marketplace:
 
    ```text
@@ -59,12 +71,19 @@ filter in Extensions to browse and install plugins from the marketplace.
    /plugin install <plugin>@plagueho-agent-skills
    ```
 
+   Replace `<plugin>` with a specific plugin name (e.g., `azure-infrastructure-deployment`)
+
 4. Restart to load the new plugins
+
 5. View available skills:
 
    ```text
    /skills
    ```
+
+### GitHub Pages Site
+
+Browse the full plugin catalog at [**plagueho.github.io/plagueho.skills**](https://plagueho.github.io/plagueho.skills)
 
 ## Repository Structure
 
