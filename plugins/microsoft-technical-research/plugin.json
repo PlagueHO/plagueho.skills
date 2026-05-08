@@ -1,0 +1,25 @@
+{
+  "name": "microsoft-technical-research",
+  "description": "Deep technical research on Microsoft technologies with multi-agent orchestration and structured documentation output.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Daniel Scott-Raynsford",
+    "url": "https://github.com/PlagueHO"
+  },
+  "repository": "https://github.com/PlagueHO/plagueho.skills",
+  "license": "MIT",
+  "keywords": [
+    "microsoft",
+    "research",
+    "documentation",
+    "technical-writing",
+    "azure",
+    "microsoft-learn",
+    "multi-agent"
+  ],
+  "skills": [
+    "./skills/create-microsoft-research-plan",
+    "./skills/research-note-template",
+    "./skills/research-output-scaffolding"
+  ]
+}
