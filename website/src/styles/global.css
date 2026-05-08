@@ -776,6 +776,18 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
 }
 .skill-item:hover { background: var(--color-glass); }
 
+/* Clickable variant (skills/agents in plugin cards) */
+.skill-item--clickable {
+  cursor: pointer;
+}
+.skill-item--clickable:hover {
+  background: rgba(133, 52, 243, 0.10);
+}
+.skill-item--clickable:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
 .skill-item__icon {
   flex-shrink: 0;
   width: 0.9rem;
@@ -850,6 +862,15 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
   border-color: rgba(133, 52, 243, 0.35);
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
+}
+
+/* Clickable variant */
+.skill-card--clickable {
+  cursor: pointer;
+}
+.skill-card--clickable:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 .skill-card__icon {

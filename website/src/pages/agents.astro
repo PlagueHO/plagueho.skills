@@ -8,6 +8,10 @@ import { resolve } from 'node:path';
 interface Agent {
   name: string;
   description: string;
+  tools?: string[] | null;
+  subAgents?: string[] | null;
+  userInvocable?: boolean | null;
+  githubUrl?: string;
 }
 
 interface Plugin {
@@ -22,6 +26,10 @@ interface SiteData {
 interface FlatAgent {
   name: string;
   description: string;
+  tools: string[] | null;
+  subAgents: string[] | null;
+  userInvocable: boolean | null;
+  githubUrl: string;
   pluginName: string;
   color: string;
   icon: string;
@@ -41,6 +49,10 @@ const allAgents: FlatAgent[] = siteData.plugins.flatMap((plugin) => {
   return (plugin.agents ?? []).map((agent) => ({
     name: agent.name,
     description: agent.description,
+    tools: agent.tools ?? null,
+    subAgents: agent.subAgents ?? null,
+    userInvocable: agent.userInvocable ?? null,
+    githubUrl: agent.githubUrl ?? '',
     pluginName: plugin.name,
     color: cfg.color,
     icon: cfg.icon,
@@ -99,9 +111,20 @@ const totalAgents = allAgents.length;
       <div class="skills-grid" id="agents-grid" role="list">
         {allAgents.map((agent) => (
           <article
-            class="skill-card"
+            class="skill-card skill-card--clickable"
             role="listitem"
+            tabindex="0"
             data-search-text={agent.searchText}
+            data-detail={JSON.stringify({
+              type: 'agent',
+              name: agent.name,
+              description: agent.description,
+              pluginName: agent.pluginName,
+              tools: agent.tools,
+              subAgents: agent.subAgents,
+              userInvocable: agent.userInvocable,
+              githubUrl: agent.githubUrl,
+            })}
             style={`--card-accent-bar: ${agent.color}; --card-icon-color: ${agent.color}; animation-delay: ${agent.delay}ms;`}
           >
             <div class="skill-card__icon" aria-hidden="true">
@@ -163,4 +186,21 @@ const totalAgents = allAgents.length;
   }
 
   searchInput.addEventListener('input', applySearch);
+
+  // Open detail modal on card click / Enter key
+  grid.addEventListener('click', (e: MouseEvent) => {
+    const card = (e.target as HTMLElement).closest<HTMLElement>('[data-detail]');
+    if (!card) return;
+    const detail = JSON.parse(card.dataset.detail ?? '{}');
+    (window as unknown as Record<string, (d: unknown) => void>).__openDetailModal?.(detail);
+  });
+
+  grid.addEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const card = (e.target as HTMLElement).closest<HTMLElement>('[data-detail]');
+    if (!card) return;
+    e.preventDefault();
+    const detail = JSON.parse(card.dataset.detail ?? '{}');
+    (window as unknown as Record<string, (d: unknown) => void>).__openDetailModal?.(detail);
+  });
 </script>

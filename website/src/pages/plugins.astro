@@ -8,11 +8,22 @@ import { resolve } from 'node:path';
 interface Skill {
   name: string;
   description: string;
+  metadata?: { author?: string; version?: string; reference?: string } | null;
+  compatibility?: string[] | null;
+  argumentHint?: string | null;
+  userInvocable?: boolean | null;
+  scripts?: string[];
+  assets?: string[];
+  githubUrl?: string;
 }
 
 interface Agent {
   name: string;
   description: string;
+  tools?: string[] | null;
+  subAgents?: string[] | null;
+  userInvocable?: boolean | null;
+  githubUrl?: string;
 }
 
 interface Plugin {
@@ -136,7 +147,23 @@ const totalPlugins = siteData.plugins.length;
                       <h3 class="plugin-card__section-title">Skills</h3>
                       <ul class="skill-list">
                         {plugin.skills.map((skill) => (
-                          <li class="skill-item">
+                          <li
+                            class="skill-item skill-item--clickable"
+                            tabindex="0"
+                            data-detail={JSON.stringify({
+                              type: 'skill',
+                              name: skill.name,
+                              description: skill.description,
+                              pluginName: plugin.name,
+                              metadata: skill.metadata ?? null,
+                              compatibility: skill.compatibility ?? null,
+                              argumentHint: skill.argumentHint ?? null,
+                              userInvocable: skill.userInvocable ?? null,
+                              scripts: skill.scripts ?? [],
+                              assets: skill.assets ?? [],
+                              githubUrl: skill.githubUrl ?? '',
+                            })}
+                          >
                             <span class="skill-item__icon">
                               <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
                                 <path d="M8 1a.75.75 0 0 1 .75.75v6.5a.75.75 0 0 1-1.5 0v-6.5A.75.75 0 0 1 8 1ZM4.11 3.05a.75.75 0 0 1 1.06 0l.463.464a.75.75 0 0 1-1.061 1.06l-.463-.463a.75.75 0 0 1 0-1.06Zm8.24 0a.75.75 0 0 1 0 1.06l-.463.464a.75.75 0 1 1-1.06-1.061l.462-.463a.75.75 0 0 1 1.061 0ZM8 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-3.5 2a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0Z"/>
@@ -154,7 +181,20 @@ const totalPlugins = siteData.plugins.length;
                       <h3 class="plugin-card__section-title">Agents</h3>
                       <ul class="skill-list">
                         {(plugin.agents ?? []).map((agent) => (
-                          <li class="skill-item">
+                          <li
+                            class="skill-item skill-item--clickable"
+                            tabindex="0"
+                            data-detail={JSON.stringify({
+                              type: 'agent',
+                              name: agent.name,
+                              description: agent.description,
+                              pluginName: plugin.name,
+                              tools: agent.tools ?? null,
+                              subAgents: agent.subAgents ?? null,
+                              userInvocable: agent.userInvocable ?? null,
+                              githubUrl: agent.githubUrl ?? '',
+                            })}
+                          >
                             <span class="skill-item__icon">
                               <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
                                 <path d="M8 1.5a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-3 5A2.5 2.5 0 0 0 2.5 9v3A2.5 2.5 0 0 0 5 14.5h6A2.5 2.5 0 0 0 13.5 12V9A2.5 2.5 0 0 0 11 6.5H5Z"/>
@@ -231,5 +271,29 @@ const totalPlugins = siteData.plugins.length;
       filterTabs.forEach((t) => t.classList.toggle('is-active', t === tab));
       applyFilters();
     });
+  });
+
+  // Open detail modal when a skill-item or agent-item is clicked
+  function openDetailItem(el: HTMLElement): void {
+    const raw = el.dataset.detail;
+    if (!raw) return;
+    const detail = JSON.parse(raw);
+    (window as unknown as Record<string, (d: unknown) => void>).__openDetailModal?.(detail);
+  }
+
+  grid.addEventListener('click', (e: MouseEvent) => {
+    const item = (e.target as HTMLElement).closest<HTMLElement>('[data-detail]');
+    if (!item) return;
+    e.stopPropagation();
+    openDetailItem(item);
+  });
+
+  grid.addEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const item = (e.target as HTMLElement).closest<HTMLElement>('[data-detail]');
+    if (!item) return;
+    e.preventDefault();
+    e.stopPropagation();
+    openDetailItem(item);
   });
 </script>

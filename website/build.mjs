@@ -24,28 +24,75 @@ const marketplace = JSON.parse(
   readFileSync(join(root, ".github/plugin/marketplace.json"), "utf-8")
 );
 
-function parseFrontmatterDescription(content) {
+/**
+ * Parse all top-level frontmatter fields from a SKILL.md or agent.md file.
+ * Handles block scalars (>- / >), lists, and one level of nested objects.
+ */
+function parseFrontmatterFields(content) {
   const fmMatch = content.match(/^---\s*\n([\s\S]*?)\n---/);
-  if (!fmMatch) {
-    return "";
+  if (!fmMatch) return {};
+
+  const lines = fmMatch[1].split("\n");
+  const result = {};
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+    const topMatch = line.match(/^([a-zA-Z][a-zA-Z0-9-]*):\s*(.*)/);
+    if (!topMatch) { i++; continue; }
+
+    const key = topMatch[1];
+    const rest = topMatch[2].trim();
+
+    if (rest === ">-" || rest === ">") {
+      // Block scalar — collect indented continuation lines
+      const parts = [];
+      i++;
+      while (i < lines.length && (lines[i].startsWith("  ") || lines[i].trim() === "")) {
+        const trimmed = lines[i].trim();
+        if (trimmed !== "") parts.push(trimmed);
+        i++;
+      }
+      result[key] = parts.join(" ");
+    } else if (rest === "") {
+      // Could be a list or a nested object
+      i++;
+      if (i < lines.length && /^  - /.test(lines[i])) {
+        const items = [];
+        while (i < lines.length && /^  - /.test(lines[i])) {
+          items.push(lines[i].replace(/^  - /, "").trim());
+          i++;
+        }
+        result[key] = items;
+      } else if (i < lines.length && /^  [a-zA-Z]/.test(lines[i])) {
+        const obj = {};
+        while (i < lines.length && /^  ([a-zA-Z][a-zA-Z0-9-]*):\s*(.*)/.test(lines[i])) {
+          const nm = lines[i].match(/^  ([a-zA-Z][a-zA-Z0-9-]*):\s*(.*)/);
+          if (nm) obj[nm[1]] = nm[2].trim().replace(/^["']|["']$/g, "");
+          i++;
+        }
+        result[key] = obj;
+      }
+      // else: empty value — skip
+    } else {
+      result[key] = rest.replace(/^["']|["']$/g, "");
+      i++;
+    }
   }
 
-  const descMatch = fmMatch[1].match(
-    /description:\s*>-?\s*\n([\s\S]*?)(?=\n\w|\n---)/
-  );
-  if (descMatch) {
-    return descMatch[1].trim().replace(/\n\s*/g, " ");
-  }
-
-  const inlineMatch = fmMatch[1].match(
-    /description:\s*["']?(.+?)["']?\s*$/m
-  );
-  return inlineMatch ? inlineMatch[1].trim() : "";
+  return result;
 }
 
-function parseSkillOrAgent(skillOrAgentPath, pluginDir, type) {
+/**
+ * Parse a single skill or agent entry, returning enriched metadata.
+ * @param {string} skillOrAgentPath - path from plugin.json (e.g. "./skills/my-skill")
+ * @param {string} pluginDir        - absolute path to the plugin directory
+ * @param {string} pluginSource     - plugin source folder name (for GitHub URL)
+ * @param {"skill"|"agent"} type
+ */
+function parseSkillOrAgent(skillOrAgentPath, pluginDir, pluginSource, type) {
   const dirName = type === "skill" ? "skills" : "agents";
-  const defaultExt = type === "skill" ? "/SKILL.md" : ".agent.md";
+  const defaultExt = ".agent.md";
   const normalized = skillOrAgentPath.replace(`./${dirName}/`, "");
 
   const itemName = type === "agent"
@@ -57,12 +104,70 @@ function parseSkillOrAgent(skillOrAgentPath, pluginDir, type) {
     : join(pluginDir, dirName, itemName.endsWith(".agent.md") ? itemName : `${itemName}${defaultExt}`);
 
   let description = "";
+  let metadata = null;
+  let compatibility = null;
+  let argumentHint = null;
+  let userInvocable = null;
+  let tools = null;
+  let subAgents = null;
+
   if (existsSync(filePath)) {
     const content = readFileSync(filePath, "utf-8");
-    description = parseFrontmatterDescription(content);
+    const fm = parseFrontmatterFields(content);
+    description = fm.description ?? "";
+    metadata = fm.metadata ?? null;
+    compatibility = fm.compatibility ?? null;
+    argumentHint = fm["argument-hint"] ?? null;
+    userInvocable = fm["user-invocable"] ?? null;
+    if (type === "agent") {
+      tools = fm.tools ?? null;
+      subAgents = fm.agents ?? null;
+    }
   }
 
-  return { name: itemName, description };
+  // Collect scripts and reference/asset files for skills
+  let scripts = [];
+  let assets = [];
+  if (type === "skill") {
+    const skillDir = join(pluginDir, "skills", itemName);
+    const scriptsDir = join(skillDir, "scripts");
+    const refsDir = join(skillDir, "references");
+    const assetsDir = join(skillDir, "assets");
+
+    if (existsSync(scriptsDir)) {
+      scripts = readdirSync(scriptsDir).filter((f) => !f.startsWith(".")).sort();
+    }
+    for (const dir of [refsDir, assetsDir]) {
+      if (existsSync(dir)) {
+        assets.push(...readdirSync(dir).filter((f) => !f.startsWith(".")).sort());
+      }
+    }
+  }
+
+  const githubBase = "https://github.com/PlagueHO/plagueho.skills";
+  const githubUrl = type === "skill"
+    ? `${githubBase}/tree/main/plugins/${pluginSource}/skills/${itemName}`
+    : `${githubBase}/blob/main/plugins/${pluginSource}/agents/${itemName}.agent.md`;
+
+  const result = {
+    name: itemName,
+    description,
+    metadata,
+    compatibility,
+    userInvocable,
+    githubUrl,
+  };
+
+  if (type === "skill") {
+    result.argumentHint = argumentHint;
+    result.scripts = scripts;
+    result.assets = assets;
+  } else {
+    result.tools = tools;
+    result.subAgents = subAgents;
+  }
+
+  return result;
 }
 
 function discoverAgentsFromFolder(pluginDir) {
@@ -90,7 +195,7 @@ const plugins = marketplace.plugins.map((plugin) => {
     keywords = pluginJson.keywords || [];
 
     skills = (pluginJson.skills || []).map((skillPath) =>
-      parseSkillOrAgent(skillPath, pluginDir, "skill")
+      parseSkillOrAgent(skillPath, pluginDir, plugin.source, "skill")
     );
 
     const declaredAgents = pluginJson.agents || [];
@@ -99,7 +204,7 @@ const plugins = marketplace.plugins.map((plugin) => {
       : discoverAgentsFromFolder(pluginDir);
 
     agents = [...declaredAgents, ...fallbackAgents].map((agentPath) =>
-      parseSkillOrAgent(agentPath, pluginDir, "agent")
+      parseSkillOrAgent(agentPath, pluginDir, plugin.source, "agent")
     );
   }
 
