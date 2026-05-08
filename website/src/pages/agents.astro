@@ -1,0 +1,60 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
+---
+<Layout
+  title={`Agents — DSR's Plugin Marketplace`}
+  description="Browse all custom coding agents for GitHub Copilot."
+  currentPage="agents"
+>
+
+  <div class="page-hero">
+    <div class="container">
+      <h1 class="page-hero__title">
+        <span class="page-hero__icon"><Icon name="robot" size={32} /></span>
+        Agents
+      </h1>
+      <p class="page-hero__description">
+        Custom coding agents for GitHub Copilot — coming soon.
+      </p>
+    </div>
+  </div>
+
+  <section class="listing-section">
+    <div class="container">
+
+      <!-- Toolbar -->
+      <div class="listing-toolbar">
+        <div class="listing-toolbar__row">
+          <div class="search-bar">
+            <svg class="search-bar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input
+              id="search-input"
+              class="search-bar__input"
+              type="search"
+              placeholder="Search agents…"
+              aria-label="Search agents"
+              autocomplete="off"
+              disabled
+            />
+          </div>
+          <p class="results-count" id="results-count" aria-live="polite">
+            0 agents
+          </p>
+        </div>
+      </div>
+
+      <!-- Empty state (always visible — no agents yet) -->
+      <div class="empty-state is-visible" id="empty-state">
+        <div class="empty-state__icon">🤖</div>
+        <p class="empty-state__title">No agents yet</p>
+        <p>Custom agents are coming soon. Check back later.</p>
+      </div>
+
+    </div>
+  </section>
+
+</Layout>
