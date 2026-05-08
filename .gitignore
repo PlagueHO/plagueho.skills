@@ -58,8 +58,11 @@ artifacts/
 node_modules/
 package-lock.json
 
-# Website build output
+# Website build output and generated data
 website/dist/
+website/.astro/
+website/public/data/
+website/node_modules/
 
 # VS Code files
 .vscode/*

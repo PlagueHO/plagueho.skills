@@ -2,22 +2,22 @@
 /**
  * Build script for the plagueho.skills GitHub Pages site.
  *
- * Reads marketplace.json and each plugin.json, then copies the static
- * website files and a generated data.json into website/dist/ for
- * deployment via GitHub Pages.
+ * Reads marketplace.json and each plugin.json, then writes a
+ * data.json into website/public/data/ for use by the Astro build.
+ * Run this before `astro build`.
  */
 
-import { readFileSync, writeFileSync, mkdirSync, cpSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { readdirSync, existsSync } from "node:fs";
+import { existsSync } from "node:fs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, "..");
-const dist = join(__dirname, "dist");
+const dataDir = join(__dirname, "public", "data");
 
-// Clean and create dist
-mkdirSync(dist, { recursive: true });
+// Ensure output directory exists
+mkdirSync(dataDir, { recursive: true });
 
 // Read marketplace
 const marketplace = JSON.parse(
@@ -86,14 +86,9 @@ const data = {
 };
 
 // Write data.json
-writeFileSync(join(dist, "data.json"), JSON.stringify(data, null, 2));
-
-// Copy static assets
-for (const file of ["index.html", "styles.css"]) {
-  cpSync(join(__dirname, file), join(dist, file));
-}
+writeFileSync(join(dataDir, "data.json"), JSON.stringify(data, null, 2));
 
 const totalSkills = plugins.reduce((sum, p) => sum + p.skills.length, 0);
 console.log(
-  `Built site: ${plugins.length} plugins, ${totalSkills} skills → website/dist/`
+  `Generated data: ${plugins.length} plugins, ${totalSkills} skills → website/public/data/data.json`
 );

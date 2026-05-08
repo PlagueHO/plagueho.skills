@@ -1,0 +1,71 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  currentPage?: 'home' | 'plugins' | 'skills';
+}
+
+const {
+  title = 'PlagueHO Agent Skills',
+  description = 'Agent plugin marketplace for Daniel Scott-Raynsford — curated skills for GitHub Copilot and coding agents.',
+  currentPage = 'home',
+} = Astro.props;
+
+const base = import.meta.env.BASE_URL;
+---
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+  </head>
+  <body>
+
+    <header class="site-header">
+      <div class="container site-header__inner">
+        <a href={base} class="site-header__brand">
+          <span class="gradient-text">PlagueHO</span>
+          <span class="site-header__brand-suffix">&nbsp;Agent Skills</span>
+        </a>
+        <nav class="site-nav" aria-label="Primary navigation">
+          <a
+            href={base}
+            class:list={['site-nav__link', { 'is-active': currentPage === 'home' }]}
+          >Home</a>
+          <a
+            href={`${base}plugins/`}
+            class:list={['site-nav__link', { 'is-active': currentPage === 'plugins' }]}
+          >Plugins</a>
+          <a
+            href={`${base}skills/`}
+            class:list={['site-nav__link', { 'is-active': currentPage === 'skills' }]}
+          >Skills</a>
+        </nav>
+      </div>
+    </header>
+
+    <slot />
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>
+          Made with <span aria-label="love" role="img">&#x1F49C;</span> by
+          <a href="https://danielscottraynsford.com">Daniel Scott-Raynsford</a>
+        </p>
+        <nav class="site-footer__links" aria-label="Footer links">
+          <a href="https://github.com/PlagueHO/plagueho.skills">GitHub</a>
+          <a href="https://agentskills.io">Agent Skills Spec</a>
+          <a href="https://github.com/github/awesome-copilot">Awesome Copilot</a>
+        </nav>
+      </div>
+    </footer>
+
+  </body>
+</html>

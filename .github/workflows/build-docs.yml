@@ -16,8 +16,16 @@ jobs:
         with:
           node-version: 22
 
-      - name: Build site
+      - name: Install website dependencies
+        run: npm install
+        working-directory: website
+
+      - name: Generate data
         run: node website/build.mjs
+
+      - name: Build Astro site
+        run: npm run build
+        working-directory: website
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
