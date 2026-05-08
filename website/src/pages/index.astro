@@ -9,12 +9,18 @@ interface Skill {
   description: string;
 }
 
+interface Agent {
+  name: string;
+  description: string;
+}
+
 interface Plugin {
   name: string;
   description: string;
   version: string;
   keywords: string[];
   skills: Skill[];
+  agents?: Agent[];
 }
 
 interface SiteData {
@@ -37,6 +43,7 @@ if (existsSync(dataPath)) {
 }
 
 const totalSkills = siteData.plugins.reduce((s, p) => s + p.skills.length, 0);
+const totalAgents = siteData.plugins.reduce((s, p) => s + (p.agents?.length ?? 0), 0);
 const base = import.meta.env.BASE_URL;
 
 interface QuickLink {
@@ -74,7 +81,7 @@ const quickLinks: QuickLink[] = [
     desc: 'Custom coding agents for GitHub Copilot',
     icon: 'robot',
     color: '#22d3ee',
-    count: 0,
+    count: totalAgents,
     delay: 160,
   },
 ];

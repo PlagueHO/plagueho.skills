@@ -1,11 +1,16 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Icon from '../components/Icon.astro';
-import { CATEGORIES, CATEGORY_LABELS, DEFAULT_CATEGORY, getCategory } from '../lib/categories';
+import { CATEGORY_LABELS, getCategory } from '../lib/categories';
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 interface Skill {
+  name: string;
+  description: string;
+}
+
+interface Agent {
   name: string;
   description: string;
 }
@@ -16,6 +21,7 @@ interface Plugin {
   version: string;
   keywords: string[];
   skills: Skill[];
+  agents?: Agent[];
 }
 
 interface SiteData {
@@ -26,18 +32,6 @@ let siteData: SiteData = { plugins: [] };
 const dataPath = resolve('./public/data/data.json');
 if (existsSync(dataPath)) {
   siteData = JSON.parse(readFileSync(dataPath, 'utf-8')) as SiteData;
-}
-
-function esc(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-function truncate(str: string, max: number): string {
-  return str.length > max ? str.slice(0, max) + '\u2026' : str;
 }
 
 // Collect all categories present in data for the filter tabs
@@ -60,7 +54,7 @@ const totalPlugins = siteData.plugins.length;
         Plugins
       </h1>
       <p class="page-hero__description">
-        Curated plugin bundles, each containing multiple agent skills organized by domain.
+        Curated plugin bundles with skills and agents organized by domain.
       </p>
     </div>
   </div>
@@ -112,6 +106,7 @@ const totalPlugins = siteData.plugins.length;
             plugin.description,
             ...(plugin.keywords ?? []),
             ...plugin.skills.map((s) => s.name),
+            ...(plugin.agents ?? []).map((a) => a.name),
           ].join(' ').toLowerCase();
 
           return (
@@ -134,23 +129,45 @@ const totalPlugins = siteData.plugins.length;
 
               <p class="plugin-card__desc">{plugin.description}</p>
 
-              <ul class="skill-list" aria-label="Skills in this plugin">
-                {plugin.skills.map((skill) => (
-                  <li class="skill-item">
-                    <span class="skill-item__icon">
-                      <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                        <path d="M8 1a.75.75 0 0 1 .75.75v6.5a.75.75 0 0 1-1.5 0v-6.5A.75.75 0 0 1 8 1ZM4.11 3.05a.75.75 0 0 1 1.06 0l.463.464a.75.75 0 0 1-1.061 1.06l-.463-.463a.75.75 0 0 1 0-1.06Zm8.24 0a.75.75 0 0 1 0 1.06l-.463.464a.75.75 0 1 1-1.06-1.061l.462-.463a.75.75 0 0 1 1.061 0ZM8 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-3.5 2a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0Z"/>
-                      </svg>
-                    </span>
-                    <span>
-                      <span class="skill-item__name">{skill.name}</span>
-                      {skill.description && (
-                        <span class="skill-item__desc">{truncate(skill.description, 110)}</span>
-                      )}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              {(plugin.skills.length > 0 || (plugin.agents ?? []).length > 0) && (
+                <div class="plugin-card__sections">
+                  {plugin.skills.length > 0 && (
+                    <section class="plugin-card__section" aria-label="Skills in this plugin">
+                      <h3 class="plugin-card__section-title">Skills</h3>
+                      <ul class="skill-list">
+                        {plugin.skills.map((skill) => (
+                          <li class="skill-item">
+                            <span class="skill-item__icon">
+                              <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                                <path d="M8 1a.75.75 0 0 1 .75.75v6.5a.75.75 0 0 1-1.5 0v-6.5A.75.75 0 0 1 8 1ZM4.11 3.05a.75.75 0 0 1 1.06 0l.463.464a.75.75 0 0 1-1.061 1.06l-.463-.463a.75.75 0 0 1 0-1.06Zm8.24 0a.75.75 0 0 1 0 1.06l-.463.464a.75.75 0 1 1-1.06-1.061l.462-.463a.75.75 0 0 1 1.061 0ZM8 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-3.5 2a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0Z"/>
+                              </svg>
+                            </span>
+                            <span class="skill-item__name">{skill.name}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
+                  )}
+
+                  {(plugin.agents ?? []).length > 0 && (
+                    <section class="plugin-card__section" aria-label="Agents in this plugin">
+                      <h3 class="plugin-card__section-title">Agents</h3>
+                      <ul class="skill-list">
+                        {(plugin.agents ?? []).map((agent) => (
+                          <li class="skill-item">
+                            <span class="skill-item__icon">
+                              <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                                <path d="M8 1.5a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-3 5A2.5 2.5 0 0 0 2.5 9v3A2.5 2.5 0 0 0 5 14.5h6A2.5 2.5 0 0 0 13.5 12V9A2.5 2.5 0 0 0 11 6.5H5Z"/>
+                              </svg>
+                            </span>
+                            <span class="skill-item__name">{agent.name}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
+                  )}
+                </div>
+              )}
 
               {plugin.keywords && plugin.keywords.length > 0 && (
                 <div class="plugin-card__keywords">

@@ -736,13 +736,33 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
   margin-bottom: 1rem;
 }
 
+.plugin-card__sections {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  flex: 1;
+}
+
+.plugin-card__section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.plugin-card__section-title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  font-weight: 700;
+}
+
 /* ── Skill list (inside plugin cards) ───────────────────────── */
 .skill-list {
   list-style: none;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  flex: 1;
 }
 
 .skill-item {

@@ -7,7 +7,7 @@
  * Run this before `astro build`.
  */
 
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { readdirSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { existsSync } from "node:fs";
@@ -24,46 +24,83 @@ const marketplace = JSON.parse(
   readFileSync(join(root, ".github/plugin/marketplace.json"), "utf-8")
 );
 
-// Enrich each plugin with skill details from plugin.json
+function parseFrontmatterDescription(content) {
+  const fmMatch = content.match(/^---\s*\n([\s\S]*?)\n---/);
+  if (!fmMatch) {
+    return "";
+  }
+
+  const descMatch = fmMatch[1].match(
+    /description:\s*>-?\s*\n([\s\S]*?)(?=\n\w|\n---)/
+  );
+  if (descMatch) {
+    return descMatch[1].trim().replace(/\n\s*/g, " ");
+  }
+
+  const inlineMatch = fmMatch[1].match(
+    /description:\s*["']?(.+?)["']?\s*$/m
+  );
+  return inlineMatch ? inlineMatch[1].trim() : "";
+}
+
+function parseSkillOrAgent(skillOrAgentPath, pluginDir, type) {
+  const dirName = type === "skill" ? "skills" : "agents";
+  const defaultExt = type === "skill" ? "/SKILL.md" : ".agent.md";
+  const normalized = skillOrAgentPath.replace(`./${dirName}/`, "");
+
+  const itemName = type === "agent"
+    ? normalized.replace(/\.agent\.md$/i, "")
+    : normalized;
+
+  const filePath = type === "skill"
+    ? join(pluginDir, dirName, itemName, "SKILL.md")
+    : join(pluginDir, dirName, itemName.endsWith(".agent.md") ? itemName : `${itemName}${defaultExt}`);
+
+  let description = "";
+  if (existsSync(filePath)) {
+    const content = readFileSync(filePath, "utf-8");
+    description = parseFrontmatterDescription(content);
+  }
+
+  return { name: itemName, description };
+}
+
+function discoverAgentsFromFolder(pluginDir) {
+  const agentsDir = join(pluginDir, "agents");
+  if (!existsSync(agentsDir)) {
+    return [];
+  }
+
+  return readdirSync(agentsDir)
+    .filter((entry) => entry.toLowerCase().endsWith(".agent.md"))
+    .map((entry) => `./agents/${entry}`);
+}
+
+// Enrich each plugin with skill and agent details from plugin.json
 const plugins = marketplace.plugins.map((plugin) => {
   const pluginDir = join(root, "plugins", plugin.source);
   const pluginJsonPath = join(pluginDir, "plugin.json");
 
   let skills = [];
+  let agents = [];
   let keywords = [];
 
   if (existsSync(pluginJsonPath)) {
     const pluginJson = JSON.parse(readFileSync(pluginJsonPath, "utf-8"));
     keywords = pluginJson.keywords || [];
 
-    skills = (pluginJson.skills || []).map((skillPath) => {
-      const skillName = skillPath.replace("./skills/", "");
-      const skillMdPath = join(pluginDir, "skills", skillName, "SKILL.md");
-      let description = "";
+    skills = (pluginJson.skills || []).map((skillPath) =>
+      parseSkillOrAgent(skillPath, pluginDir, "skill")
+    );
 
-      if (existsSync(skillMdPath)) {
-        const content = readFileSync(skillMdPath, "utf-8");
-        // Extract description from YAML frontmatter
-        const fmMatch = content.match(/^---\s*\n([\s\S]*?)\n---/);
-        if (fmMatch) {
-          const descMatch = fmMatch[1].match(
-            /description:\s*>-?\s*\n([\s\S]*?)(?=\n\w|\n---)/
-          );
-          if (descMatch) {
-            description = descMatch[1].trim().replace(/\n\s*/g, " ");
-          } else {
-            const inlineMatch = fmMatch[1].match(
-              /description:\s*["']?(.+?)["']?\s*$/m
-            );
-            if (inlineMatch) {
-              description = inlineMatch[1].trim();
-            }
-          }
-        }
-      }
+    const declaredAgents = pluginJson.agents || [];
+    const fallbackAgents = declaredAgents.length > 0
+      ? []
+      : discoverAgentsFromFolder(pluginDir);
 
-      return { name: skillName, description };
-    });
+    agents = [...declaredAgents, ...fallbackAgents].map((agentPath) =>
+      parseSkillOrAgent(agentPath, pluginDir, "agent")
+    );
   }
 
   return {
@@ -72,6 +109,7 @@ const plugins = marketplace.plugins.map((plugin) => {
     version: plugin.version,
     keywords,
     skills,
+    agents,
   };
 });
 
@@ -89,6 +127,7 @@ const data = {
 writeFileSync(join(dataDir, "data.json"), JSON.stringify(data, null, 2));
 
 const totalSkills = plugins.reduce((sum, p) => sum + p.skills.length, 0);
+const totalAgents = plugins.reduce((sum, p) => sum + (p.agents?.length ?? 0), 0);
 console.log(
-  `Generated data: ${plugins.length} plugins, ${totalSkills} skills → website/public/data/data.json`
+  `Generated data: ${plugins.length} plugins, ${totalSkills} skills, ${totalAgents} agents -> website/public/data/data.json`
 );
