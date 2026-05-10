@@ -51,7 +51,7 @@
       "name": "microsoft-technical-research",
       "source": "microsoft-technical-research",
       "description": "Deep technical research on Microsoft technologies with multi-agent orchestration and structured documentation output.",
-      "version": "1.0.0"
+      "version": "2.0.0"
     },
     {
       "name": "skill-lifecycle",

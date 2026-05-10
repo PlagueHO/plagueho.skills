@@ -4,14 +4,7 @@ description: >-
   Orchestrate deep technical research on Microsoft technologies using parallel
   subagents for source discovery, deep reading, content writing, and quality
   review. Coordinates the full research lifecycle from plan to finished output.
-tools:
-  - run_in_terminal
-  - editFiles
-  - codebase
-  - fetch
-  - search
-  - microsoft-learn
-  - githubRepo
+tools: [vscode, execute, read, agent, edit, search, web, browser, 'microsoft-learn/*', todo]
 agents:
   - research-source-discovery
   - research-deep-reader

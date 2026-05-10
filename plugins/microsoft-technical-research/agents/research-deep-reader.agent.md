@@ -4,11 +4,7 @@ description: >-
   Fetch and extract structured research notes from a single source URL,
   applying the research-note-template extraction rules to produce consistent
   YAML-frontmatter note files.
-tools:
-  - fetch
-  - microsoft-learn
-  - githubRepo
-  - editFiles
+tools: [vscode, execute, read, agent, edit, search, web, browser, 'microsoft-learn/*', todo]
 user-invocable: false
 ---
 

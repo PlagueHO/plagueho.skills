@@ -4,11 +4,7 @@ description: >-
   Discover and rank candidate sources for Microsoft technology research across
   all enabled research areas. Returns structured source lists with URLs,
   titles, and relevance assessments.
-tools:
-  - search
-  - fetch
-  - microsoft-learn
-  - githubRepo
+tools: [vscode, execute, read, agent, edit, search, web, browser, 'microsoft-learn/*', todo]
 user-invocable: false
 ---
 

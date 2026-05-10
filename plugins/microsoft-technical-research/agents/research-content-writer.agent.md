@@ -4,10 +4,7 @@ description: >-
   Synthesize research notes from a specific set of areas into a polished
   output section, following writing guidelines and section-area mapping for
   consistent, well-attributed technical content.
-tools:
-  - editFiles
-  - search
-  - codebase
+tools: vscode, execute, read, agent, edit, search, web, browser, 'microsoft-learn/*', todo
 user-invocable: false
 ---
 

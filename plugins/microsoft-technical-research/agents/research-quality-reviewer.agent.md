@@ -4,10 +4,7 @@ description: >-
   Review research output sections for attribution accuracy, completeness,
   cross-references, and source validity. Identifies gaps requiring additional
   research and promotes sections from draft to complete.
-tools:
-  - search
-  - codebase
-  - fetch
+tools: [vscode, execute, read, agent, edit, search, web, browser, 'microsoft-learn/*', todo]
 user-invocable: false
 ---
 
