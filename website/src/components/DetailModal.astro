@@ -394,12 +394,33 @@
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  function makeTags(items: string[]): string {
-    return `<div class="detail-tags">${items.map((i) => `<span class="detail-tag">${esc(i)}</span>`).join('')}</div>`;
+  function toStringArray(value: unknown): string[] {
+    if (Array.isArray(value)) {
+      return value
+        .map((item) => (typeof item === 'string' ? item : String(item)))
+        .filter((item) => item.trim().length > 0);
+    }
+
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      return trimmed ? [trimmed] : [];
+    }
+
+    if (value === null || value === undefined) {
+      return [];
+    }
+
+    return [String(value)];
   }
 
-  function makeFileList(items: string[]): string {
-    return `<ul class="detail-file-list">${items.map((f) => `<li>${esc(f)}</li>`).join('')}</ul>`;
+  function makeTags(items: unknown): string {
+    const normalized = toStringArray(items);
+    return `<div class="detail-tags">${normalized.map((i) => `<span class="detail-tag">${esc(i)}</span>`).join('')}</div>`;
+  }
+
+  function makeFileList(items: unknown): string {
+    const normalized = toStringArray(items);
+    return `<ul class="detail-file-list">${normalized.map((f) => `<li>${esc(f)}</li>`).join('')}</ul>`;
   }
 
   function makeBool(val: boolean | string | null | undefined): string {
@@ -435,8 +456,9 @@
     if (detail.type === 'plugin') {
       const fields: string[] = [];
       fields.push(makeField('Version', esc(`v${detail.version}`)));
-      if (detail.keywords?.length) {
-        fields.push(makeField('Keywords', makeTags(detail.keywords)));
+      const keywords = toStringArray(detail.keywords);
+      if (keywords.length) {
+        fields.push(makeField('Keywords', makeTags(keywords)));
       }
       const counts: string[] = [];
       if (detail.skillsCount > 0) {
@@ -457,8 +479,9 @@
       if (m?.reference) {
         fields.push(makeField('Reference', `<a href="${esc(m.reference)}" target="_blank" rel="noopener noreferrer">${esc(m.reference)}</a>`));
       }
-      if (detail.compatibility?.length) {
-        fields.push(makeField('Compatibility', makeTags(detail.compatibility)));
+      const compatibility = toStringArray(detail.compatibility);
+      if (compatibility.length) {
+        fields.push(makeField('Compatibility', makeTags(compatibility)));
       }
       if (detail.userInvocable !== null && detail.userInvocable !== undefined) {
         fields.push(makeField('User Invocable', makeBool(detail.userInvocable)));
@@ -468,22 +491,26 @@
       }
       if (fields.length > 0) parts.push(makeSection('Details', fields.join('')));
 
-      if (detail.scripts?.length) {
-        parts.push(makeSection('Scripts', makeFileList(detail.scripts)));
+      const scripts = toStringArray(detail.scripts);
+      if (scripts.length) {
+        parts.push(makeSection('Scripts', makeFileList(scripts)));
       }
-      if (detail.assets?.length) {
-        parts.push(makeSection('References &amp; Assets', makeFileList(detail.assets)));
+      const assets = toStringArray(detail.assets);
+      if (assets.length) {
+        parts.push(makeSection('References &amp; Assets', makeFileList(assets)));
       }
     } else {
       const fields: string[] = [];
       if (detail.userInvocable !== null && detail.userInvocable !== undefined) {
         fields.push(makeField('User Invocable', makeBool(detail.userInvocable)));
       }
-      if (detail.tools?.length) {
-        fields.push(makeField('Tools', makeTags(detail.tools)));
+      const tools = toStringArray(detail.tools);
+      if (tools.length) {
+        fields.push(makeField('Tools', makeTags(tools)));
       }
-      if (detail.subAgents?.length) {
-        fields.push(makeField('Sub-agents', makeTags(detail.subAgents)));
+      const subAgents = toStringArray(detail.subAgents);
+      if (subAgents.length) {
+        fields.push(makeField('Sub-agents', makeTags(subAgents)));
       }
       if (fields.length > 0) parts.push(makeSection('Details', fields.join('')));
     }
