@@ -85,6 +85,29 @@
   }
 }
 
+/* ── Explicit light theme (user preference) ──────────────────── */
+html.theme-light {
+  --color-bg:           #fafafa;
+  --color-bg-secondary: #ffffff;
+  --color-bg-tertiary:  #f5f5f7;
+  --color-border:       #e4e4e7;
+  --color-glass-border: rgba(0, 0, 0, 0.12);
+  --color-text:         #3f3f46;
+  --color-text-muted:   #52525b;
+  --color-text-emphasis:#18181b;
+  --color-link:         #8534F3;
+  --color-link-hover:   #43179E;
+  --color-card-bg:      rgba(255, 255, 255, 0.90);
+  --color-card-hover:   rgba(255, 255, 255, 1);
+  --color-glass:        rgba(255, 255, 255, 0.85);
+  --shadow-lg:          0 20px 40px -12px rgba(0,0,0,0.15);
+  --shadow-glow:        0 0 40px -10px rgba(133, 52, 243, 0.30);
+  --gradient-hero:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(133, 52, 243, 0.18), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 50%, rgba(254, 76, 37, 0.10), transparent),
+    radial-gradient(ellipse 60% 40% at 20% 50%, rgba(184, 112, 255, 0.10), transparent);
+}
+
 /* ── Reset ───────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
@@ -139,6 +162,10 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
   }
 }
 
+html.theme-light .site-header {
+  background: rgba(250, 250, 250, 0.88);
+}
+
 .site-header__inner {
   display: flex;
   align-items: center;
@@ -186,6 +213,67 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
 .site-nav__link.is-active {
   color: var(--color-accent-hover);
   background: rgba(133, 52, 243, 0.12);
+}
+
+/* ── Header controls (theme toggle + nav) ────────────────────── */
+.site-header__controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color var(--transition), background var(--transition), border-color var(--transition);
+}
+
+.theme-toggle:hover {
+  color: var(--color-text-emphasis);
+  background: var(--color-glass);
+  border-color: var(--color-accent);
+}
+
+.theme-toggle:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.theme-toggle__icon {
+  width: 16px;
+  height: 16px;
+  display: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.theme-toggle__icon--light {
+  display: block;
+}
+
+html.theme-dark .theme-toggle__icon--light {
+  display: none;
+}
+
+html.theme-dark .theme-toggle__icon--dark {
+  display: block;
+}
+
+html.theme-light .theme-toggle__icon--light {
+  display: block;
+}
+
+html.theme-light .theme-toggle__icon--dark {
+  display: none;
 }
 
 /* ── Hero (home page) ────────────────────────────────────────── */
@@ -660,6 +748,15 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
   opacity: 0;
   animation: card-enter 0.4s ease-out forwards;
   transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+}
+
+.plugin-card--clickable {
+  cursor: pointer;
+}
+
+.plugin-card--clickable:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 @keyframes card-enter {

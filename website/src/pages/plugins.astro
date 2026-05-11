@@ -120,12 +120,25 @@ const totalPlugins = siteData.plugins.length;
             ...(plugin.agents ?? []).map((a) => a.name),
           ].join(' ').toLowerCase();
 
+          const githubUrl = `https://github.com/PlagueHO/plagueho.skills/tree/main/plugins/${plugin.name}`;
+
           return (
             <article
-              class="plugin-card"
+              class="plugin-card plugin-card--clickable"
               role="listitem"
+              tabindex="0"
               data-category={cfg.cat}
               data-search-text={searchText}
+              data-detail={JSON.stringify({
+                type: 'plugin',
+                name: plugin.name,
+                description: plugin.description,
+                version: plugin.version,
+                keywords: plugin.keywords ?? [],
+                skillsCount: plugin.skills.length,
+                agentsCount: (plugin.agents ?? []).length,
+                githubUrl: githubUrl,
+              })}
               style={`--card-accent-bar: ${cfg.color}; --card-icon-color: ${cfg.color}; animation-delay: ${delay}ms;`}
             >
               <div class="plugin-card__header">
@@ -273,7 +286,7 @@ const totalPlugins = siteData.plugins.length;
     });
   });
 
-  // Open detail modal when a skill-item or agent-item is clicked
+  // Open detail modal when a skill-item, agent-item, or plugin-card is clicked
   function openDetailItem(el: HTMLElement): void {
     const raw = el.dataset.detail;
     if (!raw) return;
@@ -282,6 +295,7 @@ const totalPlugins = siteData.plugins.length;
   }
 
   grid.addEventListener('click', (e: MouseEvent) => {
+    const plugin = (e.target as HTMLElement).closest<HTMLElement>('.plugin-card--clickable');
     const item = (e.target as HTMLElement).closest<HTMLElement>('[data-detail]');
     if (!item) return;
     e.stopPropagation();

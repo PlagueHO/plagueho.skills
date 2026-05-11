@@ -348,7 +348,18 @@
     githubUrl: string;
   }
 
-  type Detail = SkillDetail | AgentDetail;
+  interface PluginDetail {
+    type: 'plugin';
+    name: string;
+    description: string;
+    version: string;
+    keywords: string[];
+    skillsCount: number;
+    agentsCount: number;
+    githubUrl: string;
+  }
+
+  type Detail = SkillDetail | AgentDetail | PluginDetail;
 
   function esc(str: string): string {
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -382,15 +393,32 @@
   }
 
   function openModal(detail: Detail): void {
-    typeBadge.textContent = detail.type === 'skill' ? 'Skill' : 'Agent';
+    typeBadge.textContent = detail.type === 'skill' ? 'Skill' : detail.type === 'agent' ? 'Agent' : 'Plugin';
     titleEl.textContent = detail.name;
-    pluginEl.textContent = `Plugin: ${detail.pluginName}`;
+    pluginEl.textContent = detail.type === 'plugin' ? '' : `Plugin: ${(detail as SkillDetail | AgentDetail).pluginName}`;
     descEl.textContent = detail.description;
     githubLink.href = detail.githubUrl;
 
     const parts: string[] = [];
 
-    if (detail.type === 'skill') {
+    if (detail.type === 'plugin') {
+      const fields: string[] = [];
+      fields.push(makeField('Version', esc(`v${detail.version}`)));
+      if (detail.keywords?.length) {
+        fields.push(makeField('Keywords', makeTags(detail.keywords)));
+      }
+      const counts: string[] = [];
+      if (detail.skillsCount > 0) {
+        counts.push(`${detail.skillsCount} skill${detail.skillsCount !== 1 ? 's' : ''}`);
+      }
+      if (detail.agentsCount > 0) {
+        counts.push(`${detail.agentsCount} agent${detail.agentsCount !== 1 ? 's' : ''}`);
+      }
+      if (counts.length > 0) {
+        fields.push(makeField('Contents', esc(counts.join(', '))));
+      }
+      if (fields.length > 0) parts.push(makeSection('Details', fields.join('')));
+    } else if (detail.type === 'skill') {
       const fields: string[] = [];
       const m = detail.metadata;
       if (m?.author) fields.push(makeField('Author', esc(m.author)));
