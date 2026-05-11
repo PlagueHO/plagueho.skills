@@ -59,9 +59,9 @@ Use the appropriate tool for the research area:
 | `tech` | `fetch_webpage` | — |
 | `blogs` | `microsoft_docs_fetch` | `fetch_webpage` |
 | `arch` | `microsoft_docs_fetch` | `fetch_webpage` |
-| `samples` | `microsoft_code_sample_search` | `github_text_search` |
-| `solutions` | `github_text_search` | `fetch_webpage` |
-| `other` | `fetch_webpage` | `github_text_search` |
+| `samples` | `microsoft_code_sample_search` | `fetch_webpage` |
+| `solutions` | `fetch_webpage` | — |
+| `other` | `fetch_webpage` | — |
 
 ### Step 3 — Extract Content
 

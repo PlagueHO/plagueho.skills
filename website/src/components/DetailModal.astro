@@ -335,6 +335,116 @@
     color: var(--color-text-muted);
     border: 1px solid var(--color-border);
   }
+
+  /* ── README content ──────────────────────────────────────────── */
+  :global(.detail-readme) {
+    border-top: 1px solid var(--color-border);
+    padding-top: 1rem;
+    font-size: 0.85rem;
+    line-height: 1.7;
+    color: var(--color-text);
+  }
+
+  :global(.detail-readme h1) {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--color-text-emphasis);
+    margin: 1rem 0 0.5rem;
+  }
+
+  :global(.detail-readme h2) {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-text-emphasis);
+    margin: 1rem 0 0.4rem;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 0.3rem;
+  }
+
+  :global(.detail-readme h3) {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text-emphasis);
+    margin: 0.8rem 0 0.3rem;
+  }
+
+  :global(.detail-readme p) {
+    margin: 0.5rem 0;
+  }
+
+  :global(.detail-readme a) {
+    color: var(--color-link);
+    text-decoration: underline;
+  }
+
+  :global(.detail-readme a:hover) {
+    color: var(--color-link-hover);
+  }
+
+  :global(.detail-readme code) {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    background: var(--color-glass);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 0.15rem 0.4rem;
+  }
+
+  :global(.detail-readme pre) {
+    background: var(--color-bg-tertiary, var(--color-glass));
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    padding: 0.75rem 1rem;
+    overflow-x: auto;
+    margin: 0.6rem 0;
+  }
+
+  :global(.detail-readme pre code) {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.78rem;
+    line-height: 1.5;
+  }
+
+  :global(.detail-readme ul),
+  :global(.detail-readme ol) {
+    padding-left: 1.5rem;
+    margin: 0.5rem 0;
+  }
+
+  :global(.detail-readme li) {
+    margin: 0.2rem 0;
+  }
+
+  :global(.detail-readme table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.6rem 0;
+    font-size: 0.8rem;
+  }
+
+  :global(.detail-readme th),
+  :global(.detail-readme td) {
+    border: 1px solid var(--color-border);
+    padding: 0.4rem 0.6rem;
+    text-align: left;
+  }
+
+  :global(.detail-readme th) {
+    background: var(--color-glass);
+    font-weight: 600;
+    color: var(--color-text-emphasis);
+  }
+
+  :global(.detail-readme blockquote) {
+    border-left: 3px solid var(--color-accent);
+    margin: 0.5rem 0;
+    padding: 0.3rem 0.8rem;
+    color: var(--color-text-muted);
+    background: var(--color-glass);
+    border-radius: 0 4px 4px 0;
+  }
 </style>
 
 <script>
@@ -386,6 +496,7 @@
     skillsCount: number;
     agentsCount: number;
     githubUrl: string;
+    readmeHtml?: string;
   }
 
   type Detail = SkillDetail | AgentDetail | PluginDetail;
@@ -471,6 +582,10 @@
         fields.push(makeField('Contents', esc(counts.join(', '))));
       }
       if (fields.length > 0) parts.push(makeSection('Details', fields.join('')));
+
+      if (detail.readmeHtml) {
+        parts.push(`<div class="detail-readme">${detail.readmeHtml}</div>`);
+      }
     } else if (detail.type === 'skill') {
       const fields: string[] = [];
       const m = detail.metadata;

@@ -33,6 +33,7 @@ interface Plugin {
   keywords: string[];
   skills: Skill[];
   agents?: Agent[];
+  readmeHtml?: string;
 }
 
 interface SiteData {
@@ -138,6 +139,7 @@ const totalPlugins = siteData.plugins.length;
                 skillsCount: plugin.skills.length,
                 agentsCount: (plugin.agents ?? []).length,
                 githubUrl: githubUrl,
+                readmeHtml: plugin.readmeHtml ?? '',
               })}
               style={`--card-accent-bar: ${cfg.color}; --card-icon-color: ${cfg.color}; animation-delay: ${delay}ms;`}
             >

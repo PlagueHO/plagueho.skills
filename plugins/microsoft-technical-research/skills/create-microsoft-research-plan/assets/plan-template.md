@@ -57,7 +57,7 @@
 
 ### samples — Source Code and Samples
 
-- **Tool**: Microsoft Learn MCP, `github_text_search`
+- **Tool**: Microsoft Learn MCP, `fetch_webpage`
 - **Search Terms**:
   - {{SEARCH_TERM_1}}
   - {{SEARCH_TERM_2}}
@@ -65,7 +65,7 @@
 
 ### solutions — Solution Accelerators
 
-- **Tool**: Microsoft Learn MCP, `github_text_search`
+- **Tool**: Microsoft Learn MCP, `fetch_webpage`
 - **Search Terms**:
   - {{SEARCH_TERM_1}}
   - {{SEARCH_TERM_2}}
@@ -73,7 +73,7 @@
 
 ### other — Third-Party References
 
-- **Tool**: `fetch_webpage`, `github_text_search`
+- **Tool**: `fetch_webpage`
 - **Search Terms**:
   - {{SEARCH_TERM_1}}
   - {{SEARCH_TERM_2}}

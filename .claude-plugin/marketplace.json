@@ -2,7 +2,7 @@
   "name": "plagueho-agent-skills",
   "metadata": {
     "description": "Agent plugin marketplace for Daniel Scott-Raynsford.",
-    "version": "2.2.0",
+    "version": "2.3.0",
     "pluginRoot": "./plugins"
   },
   "owner": {
@@ -51,7 +51,7 @@
       "name": "microsoft-technical-research",
       "source": "microsoft-technical-research",
       "description": "Deep technical research on Microsoft technologies with multi-agent orchestration and structured documentation output.",
-      "version": "2.0.0"
+      "version": "2.1.0"
     },
     {
       "name": "skill-lifecycle",

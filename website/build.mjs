@@ -11,6 +11,7 @@ import { readdirSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { existsSync } from "node:fs";
+import { marked } from "marked";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, "..");
@@ -208,6 +209,14 @@ const plugins = marketplace.plugins.map((plugin) => {
     );
   }
 
+  // Read and render plugin README.md to HTML
+  let readmeHtml = "";
+  const readmePath = join(pluginDir, "README.md");
+  if (existsSync(readmePath)) {
+    const readmeContent = readFileSync(readmePath, "utf-8");
+    readmeHtml = marked.parse(readmeContent);
+  }
+
   return {
     name: plugin.name,
     description: plugin.description,
@@ -215,6 +224,7 @@ const plugins = marketplace.plugins.map((plugin) => {
     keywords,
     skills,
     agents,
+    readmeHtml,
   };
 });
 
