@@ -30,24 +30,26 @@ const base = import.meta.env.BASE_URL;
   <body>
 
     <script>
-      // Apply theme immediately before page renders to prevent flash
-      const STORAGE_KEY = 'theme-preference';
-      const stored = localStorage.getItem(STORAGE_KEY);
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const theme = stored || (prefersDark ? 'dark' : 'light');
+      (() => {
+        // Apply theme immediately before page renders to prevent flash.
+        const STORAGE_KEY = 'theme-preference';
+        const stored = localStorage.getItem(STORAGE_KEY);
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = stored || (prefersDark ? 'dark' : 'light');
 
-      if (theme === 'light') {
-        document.documentElement.classList.add('theme-light');
-      } else {
-        document.documentElement.classList.add('theme-dark');
-      }
+        if (theme === 'light') {
+          document.documentElement.classList.add('theme-light');
+        } else {
+          document.documentElement.classList.add('theme-dark');
+        }
+      })();
     </script>
 
     <header class="site-header">
       <div class="container site-header__inner">
         <a href={base} class="site-header__brand">
           <span class="gradient-text">DSR</span>
-          <span class="site-header__brand-suffix">&nbsp;Plugin Marketplace</span>
+          <span class="site-header__brand-suffix">'s Plugin Marketplace</span>
         </a>
         <div class="site-header__controls">
           <button
@@ -99,62 +101,64 @@ const base = import.meta.env.BASE_URL;
     <DetailModal />
 
     <script>
-      // ── Theme toggle logic ───────────────────────────────────────
-      const STORAGE_KEY = 'theme-preference';
-      const THEMES = { light: 'light', dark: 'dark' };
+      (() => {
+        // ── Theme toggle logic ───────────────────────────────────────
+        const STORAGE_KEY = 'theme-preference';
+        const THEMES = { light: 'light', dark: 'dark' };
 
-      // Determine initial theme
-      function getInitialTheme(): string {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) return stored;
+        // Determine initial theme.
+        function getInitialTheme(): string {
+          const stored = localStorage.getItem(STORAGE_KEY);
+          if (stored) return stored;
 
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        return prefersDark ? THEMES.dark : THEMES.light;
-      }
-
-      function applyTheme(theme: string): void {
-        const html = document.documentElement;
-
-        // Remove both theme classes
-        html.classList.remove('theme-light', 'theme-dark');
-
-        // Add the appropriate theme class
-        if (theme === THEMES.light) {
-          html.classList.add('theme-light');
-        } else {
-          html.classList.add('theme-dark');
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          return prefersDark ? THEMES.dark : THEMES.light;
         }
 
-        localStorage.setItem(STORAGE_KEY, theme);
+        function applyTheme(theme: string): void {
+          const html = document.documentElement;
 
-        // Update toggle button aria-pressed state
-        const toggle = document.getElementById('theme-toggle') as HTMLButtonElement;
-        if (toggle) {
-          toggle.setAttribute('aria-pressed', theme === THEMES.dark ? 'true' : 'false');
+          // Remove both theme classes.
+          html.classList.remove('theme-light', 'theme-dark');
+
+          // Add the appropriate theme class.
+          if (theme === THEMES.light) {
+            html.classList.add('theme-light');
+          } else {
+            html.classList.add('theme-dark');
+          }
+
+          localStorage.setItem(STORAGE_KEY, theme);
+
+          // Update toggle button aria-pressed state.
+          const toggle = document.getElementById('theme-toggle') as HTMLButtonElement;
+          if (toggle) {
+            toggle.setAttribute('aria-pressed', theme === THEMES.dark ? 'true' : 'false');
+          }
         }
-      }
 
-      function toggleTheme(): void {
-        const current = localStorage.getItem(STORAGE_KEY) || getInitialTheme();
-        const next = current === THEMES.dark ? THEMES.light : THEMES.dark;
-        applyTheme(next);
-      }
-
-      // Initialize theme on page load
-      applyTheme(getInitialTheme());
-
-      // Add toggle listener
-      const themeToggle = document.getElementById('theme-toggle') as HTMLButtonElement;
-      if (themeToggle) {
-        themeToggle.addEventListener('click', toggleTheme);
-      }
-
-      // Listen for system theme changes
-      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-        if (!localStorage.getItem(STORAGE_KEY)) {
-          applyTheme(e.matches ? THEMES.dark : THEMES.light);
+        function toggleTheme(): void {
+          const current = localStorage.getItem(STORAGE_KEY) || getInitialTheme();
+          const next = current === THEMES.dark ? THEMES.light : THEMES.dark;
+          applyTheme(next);
         }
-      });
+
+        // Initialize theme on page load.
+        applyTheme(getInitialTheme());
+
+        // Add toggle listener.
+        const themeToggle = document.getElementById('theme-toggle') as HTMLButtonElement;
+        if (themeToggle) {
+          themeToggle.addEventListener('click', toggleTheme);
+        }
+
+        // Listen for system theme changes.
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+          if (!localStorage.getItem(STORAGE_KEY)) {
+            applyTheme(e.matches ? THEMES.dark : THEMES.light);
+          }
+        });
+      })();
     </script>
 
     <footer class="site-footer">

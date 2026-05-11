@@ -141,11 +141,16 @@ html.theme-dark {
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 
+html,
+body {
+  background-color: var(--color-bg);
+}
+
 /* ── Base ────────────────────────────────────────────────────── */
 body {
   font-family: var(--font-base);
   color: var(--color-text);
-  background: var(--color-bg) var(--gradient-hero);
+  background-image: var(--gradient-hero);
   background-attachment: fixed;
   background-size: cover;
   line-height: 1.6;
@@ -327,7 +332,7 @@ html.theme-light .theme-toggle__icon--dark {
   font-size: clamp(2.5rem, 7vw, 4rem);
   font-weight: 800;
   letter-spacing: -0.03em;
-  line-height: 1.1;
+  line-height: 1.15;
   margin-bottom: 1.5rem;
   color: var(--color-text-emphasis);
 }
@@ -338,6 +343,7 @@ html.theme-light .theme-toggle__icon--dark {
   background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
+  padding-bottom: 0.06em;
 }
 
 .hero__subtitle {
