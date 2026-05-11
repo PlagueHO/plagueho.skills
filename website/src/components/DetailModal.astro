@@ -38,6 +38,22 @@
           <span>View on GitHub</span>
         </a>
         <button
+          id="detail-modal-share"
+          type="button"
+          class="detail-modal__share-btn"
+          aria-label="Copy item URL"
+          title="Copy item URL"
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="18" cy="5" r="3"></circle>
+            <circle cx="6" cy="12" r="3"></circle>
+            <circle cx="18" cy="19" r="3"></circle>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+          </svg>
+          <span id="detail-modal-share-label">Share</span>
+        </button>
+        <button
           class="detail-modal__close"
           id="detail-modal-close"
           aria-label="Close"
@@ -144,7 +160,8 @@
   }
 
   /* ── GitHub link ─────────────────────────────────────────────── */
-  .detail-modal__github-link {
+  .detail-modal__github-link,
+  .detail-modal__share-btn {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
@@ -155,15 +172,23 @@
     border: 1px solid var(--color-border);
     border-radius: var(--border-radius);
     padding: 0.35rem 0.65rem;
+    cursor: pointer;
     text-decoration: none;
     transition: color var(--transition), background var(--transition), border-color var(--transition);
     white-space: nowrap;
   }
-  .detail-modal__github-link:hover {
+  .detail-modal__github-link:hover,
+  .detail-modal__share-btn:hover {
     color: var(--color-text-emphasis);
     background: var(--color-bg-tertiary);
     border-color: var(--color-accent);
     text-decoration: none;
+  }
+
+  .detail-modal__share-btn.is-copied {
+    color: var(--color-text-emphasis);
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.12);
   }
 
   /* ── Close button ────────────────────────────────────────────── */
@@ -317,11 +342,15 @@
   const backdrop = modal?.querySelector('.detail-modal__backdrop') as HTMLElement;
   const closeBtn = document.getElementById('detail-modal-close') as HTMLButtonElement;
   const githubLink = document.getElementById('detail-modal-github') as HTMLAnchorElement;
+  const shareBtn = document.getElementById('detail-modal-share') as HTMLButtonElement;
+  const shareLabel = document.getElementById('detail-modal-share-label') as HTMLSpanElement;
   const typeBadge = document.getElementById('detail-modal-type') as HTMLElement;
   const titleEl = document.getElementById('detail-modal-title') as HTMLElement;
   const pluginEl = document.getElementById('detail-modal-plugin') as HTMLElement;
   const descEl = document.getElementById('detail-modal-description') as HTMLElement;
   const fieldsEl = document.getElementById('detail-modal-fields') as HTMLElement;
+  let currentShareUrl = '';
+  let shareResetTimer: number | undefined;
 
   interface SkillDetail {
     type: 'skill';
@@ -398,6 +427,8 @@
     pluginEl.textContent = detail.type === 'plugin' ? '' : `Plugin: ${(detail as SkillDetail | AgentDetail).pluginName}`;
     descEl.textContent = detail.description;
     githubLink.href = detail.githubUrl;
+    currentShareUrl = detail.githubUrl;
+    resetShareButton();
 
     const parts: string[] = [];
 
@@ -462,12 +493,63 @@
     document.body.style.overflow = 'hidden';
   }
 
+  function resetShareButton(): void {
+    if (shareResetTimer) {
+      window.clearTimeout(shareResetTimer);
+      shareResetTimer = undefined;
+    }
+    shareBtn?.classList.remove('is-copied');
+    if (shareLabel) shareLabel.textContent = 'Share';
+  }
+
+  async function copyToClipboard(value: string): Promise<boolean> {
+    try {
+      await navigator.clipboard.writeText(value);
+      return true;
+    } catch {
+      try {
+        const input = document.createElement('input');
+        input.value = value;
+        input.setAttribute('readonly', '');
+        input.style.position = 'absolute';
+        input.style.opacity = '0';
+        document.body.appendChild(input);
+        input.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(input);
+        return ok;
+      } catch {
+        return false;
+      }
+    }
+  }
+
+  async function onShareClick(): Promise<void> {
+    if (!currentShareUrl) {
+      return;
+    }
+
+    const copied = await copyToClipboard(currentShareUrl);
+    if (!copied) {
+      if (shareLabel) shareLabel.textContent = 'Copy failed';
+      shareResetTimer = window.setTimeout(resetShareButton, 1500);
+      return;
+    }
+
+    shareBtn?.classList.add('is-copied');
+    if (shareLabel) shareLabel.textContent = 'Copied';
+    shareResetTimer = window.setTimeout(resetShareButton, 1400);
+  }
+
   function closeModal(): void {
     modal.hidden = true;
     document.body.style.overflow = '';
   }
 
   closeBtn?.addEventListener('click', closeModal);
+  shareBtn?.addEventListener('click', () => {
+    void onShareClick();
+  });
   backdrop?.addEventListener('click', closeModal);
   document.addEventListener('keydown', (e: KeyboardEvent) => {
     if (e.key === 'Escape' && !modal.hidden) closeModal();
