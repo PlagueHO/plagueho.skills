@@ -177,7 +177,7 @@ continuing.
 **Between every phase**, present a brief status update to the user so they
 have visibility into the autonomous work. Use this format:
 
-```
+```text
 Phase N complete — [summary]. Moving to Phase N+1…
 ```
 
