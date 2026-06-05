@@ -135,11 +135,11 @@ foreach ($entry in $modules.GetEnumerator() | Sort-Object Name) {
         elseif ($currentParts.Length -ge 2 -and $latestParts.Length -ge 2 -and
                 $currentParts[1] -ne $latestParts[1]) {
             $status = "MINOR"
-            $icon = [char]0x1F504  # 🔄
+            $icon = [char]::ConvertFromUtf32(0x1F504)  # 🔄
         }
         else {
             $status = "PATCH"
-            $icon = [char]0x1F504  # 🔄
+            $icon = [char]::ConvertFromUtf32(0x1F504)  # 🔄
         }
 
         $results += [PSCustomObject]@{

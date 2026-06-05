@@ -21,7 +21,7 @@
       "name": "azure-infrastructure-deployment",
       "source": "azure-infrastructure-deployment",
       "description": "Provision Azure identities and manage Azure Verified Module versions.",
-      "version": "4.0.0"
+      "version": "4.0.1"
     },
     {
       "name": "content-and-learning",
