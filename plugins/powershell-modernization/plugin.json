@@ -1,0 +1,21 @@
+{
+  "name": "powershell-modernization",
+  "description": "Modernize PowerShell test suites by migrating Pester v4 tests to Pester v5.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Daniel Scott-Raynsford",
+    "url": "https://github.com/PlagueHO"
+  },
+  "repository": "https://github.com/PlagueHO/plagueho.skills",
+  "license": "MIT",
+  "keywords": [
+    "powershell",
+    "pester",
+    "testing",
+    "modernization",
+    "migration"
+  ],
+  "skills": [
+    "./skills/upgrade-pester-v4-to-v5"
+  ]
+}

@@ -52,6 +52,7 @@ metadata, skills, agents, and hooks. The root `marketplace.json` is
 | [`content-and-learning`](../../plugins/content-and-learning/) | `ai-content-readiness-review`, `create-learning-pathway` | Review content for AI readiness and generate Microsoft technology learning pathways. |
 | [`developer-environment`](../../plugins/developer-environment/) | `create-dotfiles-repo`, `vscode-profile-sync` | Scaffold dotfiles repos and sync VS Code profiles across editions. |
 | [`dotnet-modernization`](../../plugins/dotnet-modernization/) | `dotnet-sdk-style-upgrade` | Convert legacy .NET project files to modern SDK-style format. |
+| [`powershell-modernization`](../../plugins/powershell-modernization/) | `upgrade-pester-v4-to-v5` | Modernize PowerShell test suites by migrating Pester v4 tests to Pester v5. |
 | [`skill-lifecycle`](../../plugins/skill-lifecycle/) | `skill-creator`, `convert-prompt-to-skill`, `create-skill-from-pr` | Create, convert, and generate agent skills from prompts and pull requests. |
 | [`suggest-awesome-github-copilot`](../../plugins/suggest-awesome-github-copilot/) | 4 suggest-awesome skills | Discover and install GitHub Copilot assets from the awesome-copilot repository. |
 
