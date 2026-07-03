@@ -65,11 +65,30 @@ expected substrings in `*` wildcards or the match requires the full message.
 
 **Mock scoping changed.** In v4, mocks effectively applied to the whole
 `Describe`/`Context`. In v5, a mock applies from its **placement** onward within
-its block, and the verified call count reflects that scope. After moving mocks
-during migration, re-check every `-Times`/`-Exactly` assertion.
+its block and that block's children. A mock in `BeforeAll` covers the block; a
+mock inside an `It` covers only that `It`. After moving mocks during migration,
+re-check every `-Times`/`-Exactly` assertion.
 
-Mocks are no longer rewritten, so you can set breakpoints inside mock bodies and
-`-ParameterFilter` blocks.
+**Counting scope depends on placement.** `Should -Invoke` defaults to `It` scope
+when called from `It`, `BeforeEach`, or `AfterEach`, and to the containing
+`Describe`/`Context` scope when called from `BeforeAll`/`AfterAll`. Override the
+default with `-Scope It`/`-Scope Context`/`-Scope Describe`.
+
+**Mocking commands called inside a module.** A plain `Mock` only intercepts calls
+made from the test script. To mock a command called by the module under test, add
+`-ModuleName MyModule` to both `Mock` and `Should -Invoke`. Inside an
+`InModuleScope MyModule { ... }` block, `-ModuleName` is implicit and omitted.
+Prefer `Mock -ModuleName` over `InModuleScope`; when `InModuleScope` is required,
+keep it inside an `It`, and use the `script:` modifier for variables that must
+persist beyond the scriptblock. Manifest modules fully support `Mock -ModuleName`
+and `InModuleScope` in Pester 5.4+. Binary modules can have their exported commands
+mocked, but `-ModuleName` injection and `InModuleScope` are not possible.
+
+**Other mock changes.** `-ParameterFilter` no longer requires a `param()` block;
+reference the command's parameters directly. Inside a mock body use
+`$PesterBoundParameters` (Pester 5.2+) instead of `$PSBoundParameters`, which the
+mock hook overwrites. Mocks are no longer rewritten, so you can set breakpoints
+inside mock bodies and `-ParameterFilter` blocks.
 
 ## Invoke-Pester parameters
 

@@ -91,27 +91,38 @@ For **each** `*.Tests.ps1` file, apply these structural rules. They address the
 two-phase engine and are the most common cause of silent breakage:
 
 1. **Move all executable code into Pester blocks.** No code may sit at the top of
-   the file or directly inside a `Describe`/`Context` body. Wrap setup in
-   `BeforeAll`, per-test setup in `BeforeEach`, teardown in `AfterAll`/`AfterEach`.
+   the file or directly inside a `Describe`/`Context` body. Wrap shared setup in
+   `BeforeAll` (runs once per block during Run), per-test setup in `BeforeEach`,
+   and teardown in `AfterAll`/`AfterEach`. Teardown runs inside a `finally`, so it
+   executes even when a test or its setup fails. Variables from `BeforeAll` are
+   visible to child blocks but read-only there (tests stay isolated); `BeforeEach`,
+   `It`, and `AfterEach` share one scope, so `AfterEach` can see variables an `It`
+   created.
 2. **Import the code under test inside `BeforeAll`** using `$PSScriptRoot`:
 
    ```powershell
    BeforeAll {
        . $PSScriptRoot/Get-Thing.ps1
-       # or: Import-Module $PSScriptRoot/MyModule.psd1 -Force
+       # or dot-source the sibling script: . $PSCommandPath.Replace('.Tests.ps1', '.ps1')
+       # or import a module: Import-Module $PSScriptRoot/MyModule.psd1 -Force
    }
    ```
 
    Replace any `$MyInvocation.MyCommand.Path` path discovery with `$PSScriptRoot`
-   or `$PSCommandPath` — the former does not work in v5 `BeforeAll`.
+   or `$PSCommandPath`; the former does not work in v5 `BeforeAll`.
 3. **Move discovery-time code into `BeforeDiscovery`.** Code that builds
    `-ForEach`/`-TestCases` data, or computes `-Skip` conditions, runs during
    Discovery. Put it in `BeforeDiscovery`, not `BeforeAll` (which runs later).
 4. **Pass data into tests explicitly.** Variables created in Discovery are **not**
    visible in `It`/`BeforeAll`. Supply them via `-ForEach`/`-TestCases` so each
    test receives its own data.
-5. **Avoid `InModuleScope` wrapping `Describe`/`It`.** Prefer `Mock -ModuleName`.
-   If internal access is unavoidable, place `InModuleScope` inside `It`.
+5. **Do not wrap `Describe`/`It` in `InModuleScope`.** To intercept a module's
+   internal calls, prefer `Mock -ModuleName MyModule` (see Step 4). Reserve
+   `InModuleScope` for reaching *non-exported* functions, and place it **inside** an
+   `It`, never around `Describe`/`Context`/`It`; wrapping blocks prevents testing
+   exported functions, skips export validation, and slows Discovery by loading the
+   module. Variables or functions created inside `InModuleScope` do not persist by
+   default; use the `script:` scope modifier when they must outlive the scriptblock.
 
 See [references/v4-to-v5-mapping.md](references/v4-to-v5-mapping.md) for the
 exhaustive rule table and [assets/example-before.Tests.ps1](assets/example-before.Tests.ps1)
@@ -130,11 +141,26 @@ Apply these token-level replacements (full list in the mapping reference):
 
 Critical mock behavior changes:
 
-- **Mocks are scoped by placement.** A mock in `BeforeAll` covers the block; a
-  mock inside an `It` covers only that `It`. The verified call **count** depends
-  on this scope, so move mocks deliberately and re-check `-Times`/`-Exactly`.
-- **`Should -Throw` uses `-like`.** Wrap expected substrings in `*` wildcards, or
-  the assertion will require an exact message match and fail.
+- **Mocks are scoped by placement, not the whole `Describe`/`Context`.** A mock in
+  `BeforeAll` covers the block and its children; a mock inside an `It` covers only
+  that `It`. Move mocks deliberately and re-check every `-Times`/`-Exactly` after
+  re-scoping.
+- **Mock counting also depends on placement.** `Should -Invoke` defaults to `It`
+  scope when called from `It`, `BeforeEach`, or `AfterEach`, and to the containing
+  `Describe`/`Context` scope when called from `BeforeAll`/`AfterAll`. Override with
+  `-Scope It`/`-Scope Context`/`-Scope Describe` when the assertion sits in a
+  different block than the calls it counts.
+- **Mock commands called *inside* a module with `-ModuleName`.** A plain `Mock`
+  only intercepts calls made from the test script. To mock a command invoked by the
+  module under test, use `Mock -ModuleName MyModule CommandName { ... }` and verify
+  with `Should -Invoke CommandName -ModuleName MyModule`. Inside an
+  `InModuleScope MyModule { ... }` block the `-ModuleName` is implicit and omitted.
+- **`-ParameterFilter` no longer needs a `param()` block**; reference the mocked
+  command's parameters (for example `$Path`) directly.
+- **Read bound parameters with `$PesterBoundParameters`** (Pester 5.2+) inside a
+  mock body; the mock hook overwrites `$PSBoundParameters`.
+- **`Should -Throw` matches with `-like`.** Wrap expected substrings in `*`
+  wildcards, or the assertion requires an exact message match and fails.
 
 ### Step 5 — Migrate `Invoke-Pester` calls and configuration
 
@@ -207,6 +233,8 @@ Verify all of the following before declaring the migration complete:
 - [ ] All `Should` assertions use the dashed form; `Should -Throw` uses `*` wildcards
 - [ ] `Assert-MockCalled` → `Should -Invoke`; `Assert-VerifiableMock(s)` → `Should -InvokeVerifiable`
 - [ ] Mock placement and `-Times`/`-Exactly` counts re-checked after re-scoping
+- [ ] Commands called inside a module mocked with `-ModuleName`; `Should -Invoke` scope verified
+- [ ] `InModuleScope` (if used) kept inside `It`; no `Describe`/`Context`/`It` wrapped in it
 - [ ] `Invoke-Pester` parameters and CI scripts migrated to v5 / configuration object
 - [ ] `Invoke-Pester` passes with **no Discovery errors**; counts match the baseline
 - [ ] Conventions applied; `#Requires` Pester version updated to 5.x

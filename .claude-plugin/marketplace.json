@@ -57,7 +57,7 @@
       "name": "powershell-modernization",
       "source": "powershell-modernization",
       "description": "Modernize PowerShell test suites by migrating Pester v4 tests to Pester v5.",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     {
       "name": "skill-lifecycle",
